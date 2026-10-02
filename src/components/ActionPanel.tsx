@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useWallet } from '@/contexts/WalletContext';
 import { ConfirmDialog } from './ConfirmDialog';
 import { DISPUTE_REASON_MAX_LENGTH, validateDisputeReason } from '@/lib/disputeReason';
@@ -113,6 +113,18 @@ export type ActionPanelProps = {
    * address or contract id — so it is safe to forward to analytics.
    */
   onBlockedAction?: (detail: ActionBlockedDetail) => void;
+  /**
+   * Optional observer notified once, synchronously, immediately before a mutation
+   * callback is dispatched. Used by parents to close optimistic UI as soon as the
+   * action is accepted.
+   */
+  onActionStart?: (action: ActionName) => void;
+  /**
+   * Optional observer notified when a dispatched mutation callback rejects or
+   * throws. Receives the raw error so the parent can log it; ActionPanel itself
+   * keeps the user-visible copy generic.
+   */
+  onActionError?: (action: ActionName, error: unknown) => void;
 };
 
 const LOADING_REASON = 'Action is disabled while contract data is loading.';
@@ -211,6 +223,8 @@ const ActionPanel = ({
   disputeFlow: _disputeFlow = 'inline',
   disableMutations = false,
   onBlockedAction,
+  onActionStart,
+  onActionError,
 }: ActionPanelProps) => {
   const visibleActions = getVisibleActions(status);
   const { address } = useWallet();
@@ -220,27 +234,36 @@ const ActionPanel = ({
   const panelRef = useRef<HTMLElement | null>(null);
 
   /**
-   * Guards against concurrent / duplicate mutation dispatch. The ref is the
-   * source of truth for synchronous re-entrancy checks (state updates are
-   * async and would allow two clicks in the same tick to both pass), while the
-   * state mirrors it for rendering (disabling buttons, aria-busy).
+   * The action currently dispatched, mirrored for rendering.
+   *
+   * Invariant: written only after `pendingActionRef` has been claimed and cleared
+   * in the same tick the callback settles, so the UI's busy state can never claim
+   * an action is in flight after `pendingActionRef` has already released it. It is
+   * the *display* mirror only — `pendingActionRef` remains the authority for
+   * duplicate-submission rejection.
    */
-  const mutationInFlightRef = useRef(false);
-  const [mutationInFlight, setMutationInFlight] = useState(false);
-  const [mutationError, setMutationError] = useState('');
+  const [pendingAction, setPendingAction] = useState<ActionName | null>(null);
 
-  const beginMutation = useCallback((): boolean => {
-    if (mutationInFlightRef.current) return false;
-    mutationInFlightRef.current = true;
-    setMutationInFlight(true);
-    setMutationError('');
-    return true;
-  }, []);
+  /**
+   * Synchronous duplicate-submission guard.
+   *
+   * Invariant: set synchronously before the callback is invoked and cleared in
+   * every terminal path (resolve and reject). Two clicks landing in the same tick
+   * therefore produce exactly one dispatch, and a rejected callback still releases
+   * the claim so the action remains retryable.
+   */
+  const pendingActionRef = useRef<ActionName | null>(null);
 
-  const endMutation = useCallback(() => {
-    mutationInFlightRef.current = false;
-    setMutationInFlight(false);
-  }, []);
+  /**
+   * Rendering mirror of "a mutation is in flight".
+   *
+   * Derived from `pendingAction` rather than tracked separately, so the busy
+   * affordances (disabled Cancel, `isConfirming` on the dialog) and the
+   * duplicate-submission guard can never drift apart. `pendingActionRef` remains
+   * the synchronous authority; this is display only.
+   */
+  const mutationInFlight = pendingAction !== null;
+
 
   const describedBy = (perActionId: string | undefined) =>
     isLoading ? LOADING_DESCRIPTION_ID : perActionId;
@@ -307,6 +330,48 @@ const ActionPanel = ({
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
   /** Reason a confirm was refused, surfaced inside the dialog as `role="alert"`. */
   const [confirmBlockError, setConfirmBlockError] = useState<string | null>(null);
+
+  /**
+   * The gates as rendered, with the in-flight clause applied.
+   *
+   * Invariant: while an async mutation is pending, every mutating gate is
+   * refused with `duplicate_submission`. This is the *display* half of the
+   * duplicate-submission guard — `pendingActionRef` is the authority that
+   * actually rejects a second dispatch, so the two can never disagree about
+   * whether an action was attempted twice. `viewSummary` is deliberately left
+   * open: it is read-only and cancelling an in-flight mutation must stay
+   * possible.
+   */
+  const renderedGates = {
+    submitMilestone:
+      pendingAction !== null || disputeFormOpen
+        ? DUPLICATE_DISPATCH
+        : gates.submitMilestone,
+    releaseFunds:
+      pendingAction !== null || disputeFormOpen
+        ? DUPLICATE_DISPATCH
+        : gates.releaseFunds,
+    // I1 mutual exclusion: while a confirmation dialog is open the dispute
+    // trigger is refused, so the panel can never have two competing mutation
+    // surfaces at once.
+    disputeTrigger:
+      pendingAction !== null || confirmAction !== null
+        ? DUPLICATE_DISPATCH
+        : gates.disputeTrigger,
+    dispute: pendingAction === null ? gates.dispute : DUPLICATE_DISPATCH,
+    viewSummary: gates.viewSummary,
+  };
+
+
+  /**
+   * Failure of a mutation callback ActionPanel dispatched itself.
+   *
+   * Invariant: it is cleared at the start of every new attempt (see the
+   * dispatch path), so a recovered action cannot keep showing a stale failure.
+   * It renders only when the parent supplies no `errorMessage`, which keeps a
+   * single authoritative banner instead of two contradicting ones.
+   */
+  const [internalError, setInternalError] = useState<string | null>(null);
 
   /**
    * Duplicate-submission guard.
@@ -393,8 +458,11 @@ const ActionPanel = ({
     const gate = gateFor(actionId);
     if (!gate.allowed) {
       reportBlocked(actionId, gate);
-      // Keep the dialog open with an explanation so the user is never left
-      // wondering why the action did nothing.
+      // Keep the dialog open with a diagnosable explanation and leave Cancel
+      // reachable, so the user is never trapped and can either fix the
+      // condition (reconnect the wallet, wait for the load) or dismiss the
+      // dialog. Auto-closing here would silently discard the user's decision to
+      // confirm, and would race any condition that clears on its own.
       setConfirmBlockError(gate.message);
       return;
     }
@@ -413,19 +481,11 @@ const ActionPanel = ({
     // Consume before dispatch so a synchronous re-entrant confirm is refused.
     consumeSurface();
 
-    if (confirmAction === 'submit') {
-      onSubmitMilestone?.();
-    } else if (confirmAction === 'release') {
-      onReleaseFunds?.();
-    } else {
-      onDispute?.(DEFAULT_DISPUTE_REASON);
-    }
-    setConfirmBlockError(null);
-    setConfirmAction(null);
-    // Clear any previous internal error; a new attempt is being made.
-    setInternalError(null);
+    // Single dispatch point for the confirm flow: `actionId` is derived from
+    // `confirmAction` through CONFIRM_ACTION_ID, so the inline and confirm paths
+    // can never drift apart on which callback runs (or on which id is reported).
+    const action = actionId as ActionName;
     onActionStart?.(action);
-
     // Set the ref immediately (synchronous re-entrance guard).
     pendingActionRef.current = action;
 
@@ -442,8 +502,9 @@ const ActionPanel = ({
         } else if (action === 'releaseFunds') {
           returnValue = onReleaseFunds?.();
         } else {
-          // action === 'dispute' (legacy confirm flow)
-          returnValue = onDispute?.('Dispute opened from action panel.');
+          // action === 'dispute'. The reason was validated above, so
+          // `onDispute` is never handed an unvalidated string on this path.
+          returnValue = onDispute?.(DEFAULT_DISPUTE_REASON);
         }
       } catch (syncErr) {
         return { promise: Promise.reject(syncErr), isAsync: false };
@@ -453,6 +514,13 @@ const ActionPanel = ({
     };
 
     const { promise, isAsync } = invokeCallback();
+
+    // Close the dialog immediately: the action has been dispatched, so leaving
+    // it open would let the user re-confirm what is already running.
+    setConfirmBlockError(null);
+    setConfirmAction(null);
+    // Clear any previous internal error; a new attempt is being made.
+    setInternalError(null);
 
     // Only show the in-flight UI (disabled buttons) for genuinely async callbacks.
     // For sync callbacks: clear the ref immediately so subsequent synchronous
@@ -496,7 +564,10 @@ const ActionPanel = ({
     // Re-use the trigger-side gate that drives this button's `disabled`
     // attribute. `disputeFormOpen` is still false at click time, so the
     // `form_open` rule only refuses a re-entrant open (see the policy module).
-    const gate = gates.disputeTrigger;
+    // `renderedGates` rather than `gates` so the handler cannot disagree with
+    // what the user sees: I1 mutual exclusion (a confirm dialog or an in-flight
+    // mutation already owns the panel) refuses the open here too.
+    const gate = renderedGates.disputeTrigger;
     if (!gate.allowed) {
       reportBlocked('dispute', gate);
       return;
@@ -505,6 +576,19 @@ const ActionPanel = ({
     disputeTriggerRef.current = event.currentTarget;
     setDisputeReason('');
     setDisputeReasonError('');
+    // Re-opening the form is a fresh attempt: a stale failure banner from the
+    // previous one must not survive, or the user sees an error for an action
+    // they have not retried yet.
+    setInternalError(null);
+    // With disputeFlow="confirm" the inline form is never rendered, so opening
+    // it here left the trigger inert: no dialog appeared and no dispute could
+    // be raised. Route to the confirmation dialog instead, which supplies its
+    // own canned (still validated) reason.
+    if (_disputeFlow === 'confirm') {
+      setConfirmAction('dispute');
+      openSurface();
+      return;
+    }
     openSurface();
     setDisputeFormOpen(true);
   };
@@ -651,16 +735,20 @@ const ActionPanel = ({
     }
 
     consumeSurface();
-    onDispute?.(disputeReason.trim());
     closeDisputeForm();
 
     // Set the ref immediately (synchronous re-entrance guard).
     pendingActionRef.current = 'dispute';
+    onActionStart?.('dispute');
 
-    let returnValue: void | Promise<void>;
+    let returnValue: void | Promise<void> = undefined;
     let invokeError: unknown;
     let didThrow = false;
     try {
+      // `disputeReason` was already validated above; trimming here keeps the
+      // value handed to `onDispute` identical to the one the user typed minus
+      // surrounding whitespace, and is computed exactly once.
+      const trimmedReason = disputeReason.trim();
       returnValue = onDispute?.(trimmedReason);
     } catch (syncErr) {
       invokeError = syncErr;
@@ -760,7 +848,7 @@ const ActionPanel = ({
           <button
             type="button"
             onClick={(e) => handleOpenConfirm('submit', e)}
-            disabled={!gates.submitMilestone.allowed}
+            disabled={!renderedGates.submitMilestone.allowed}
             title={!isWalletConnected ? noWalletMsg : mutationsDisabledMsg}
             aria-label="Submit milestone for approval"
             aria-describedby={describedBy(describedById('submitMilestone'))}
@@ -774,7 +862,7 @@ const ActionPanel = ({
           <button
             type="button"
             onClick={(event) => handleOpenConfirm('release', event)}
-            disabled={!gates.releaseFunds.allowed}
+            disabled={!renderedGates.releaseFunds.allowed}
             title={!isWalletConnected ? noWalletMsg : mutationsDisabledMsg}
             aria-label="Release funds to the contractor"
             aria-describedby={describedBy(describedById('releaseFunds'))}
@@ -790,7 +878,7 @@ const ActionPanel = ({
               ref={disputeTriggerRef}
               type="button"
               onClick={handleOpenDisputeForm}
-              disabled={!gates.disputeTrigger.allowed}
+              disabled={!renderedGates.disputeTrigger.allowed}
               title={!isWalletConnected ? noWalletMsg : mutationsDisabledMsg}
               aria-label="Open a dispute for this contract"
               aria-expanded={_disputeFlow === 'inline' ? disputeFormOpen : undefined}
@@ -916,7 +1004,7 @@ const ActionPanel = ({
           <button
             type="button"
             onClick={handleViewSummary}
-            disabled={!gates.viewSummary.allowed}
+            disabled={!renderedGates.viewSummary.allowed}
             aria-label="View contract summary details"
             aria-describedby={describedBy(describedById('viewSummary'))}
             className={`w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-50 ${focusRingClass}`}
@@ -939,7 +1027,7 @@ const ActionPanel = ({
         tone={confirmAction === 'release' || confirmAction === 'dispute' ? 'destructive' : 'default'}
         error={confirmBlockError ?? undefined}
         onConfirm={handleConfirm}
-        isConfirming={mutationInFlight}
+        isLoading={mutationInFlight}
         onCancel={handleCancel}
       />
     </aside>

@@ -16,7 +16,7 @@
  *      records.
  */
 
-import type { Contract, ContractStatus, Milestone } from '@/types/domain';
+import type { Contract, Milestone, StatusType } from '@/types/domain';
 
 /** Maximum length of a contract identifier accepted by the route. */
 export const MAX_CONTRACT_ID_LENGTH = 64;
@@ -45,21 +45,27 @@ export function isValidContractId(id: unknown): boolean {
  * id is invalid, so callers must handle the failure explicitly.
  */
 export function normalizeContractId(id: unknown): string | null {
-  if (!isValidContractId(id)) {
+  if (typeof id !== "string") {
     return null;
   }
-  return (id as string).trim();
+  // Trim first: validating the untrimmed value rejected any id carrying
+  // surrounding whitespace and made the trim below unreachable.
+  const trimmed = id.trim();
+  return isValidContractId(trimmed) ? trimmed : null;
 }
 
 /**
  * Status transition table for contracts. Each key lists the statuses that
  * may be reached from it. Terminal statuses have empty transition lists.
  */
-export const CONTRACT_STATUS_TRANSITIONS: Readonly<Record<ContractStatus, readonly ContractStatus[]>> =
+export const CONTRACT_STATUS_TRANSITIONS: Readonly<Record<StatusType, readonly StatusType[]>> =
   Object.freeze({
-    Active: ['Complete', 'Dispute'],
-    Complete: [],
-    Dispute: [],
+    Active: ['Completed', 'Disputed'],
+    Pending: ['Active', 'Disputed'],
+    Completed: ['Paid', 'Disputed'],
+    Disputed: ['Active', 'Completed'],
+    Paid: [],
+    Archived: [],
   });
 
 /**
@@ -68,8 +74,8 @@ export const CONTRACT_STATUS_TRANSITIONS: Readonly<Record<ContractStatus, readon
  * succeed and are instead reported as no-ops by the caller.
  */
 export function canNTransitionContractStatus(
-  from: ContractStatus,
-  to: ContractStatus,
+  from: StatusType,
+  to: StatusType,
 ): boolean {
   if (from === to) {
     return false;
@@ -85,8 +91,8 @@ export function canNTransitionContractStatus(
 export class InvalidContractTransitionError extends Error {
   readonly code = 'INVALID_CONTRACT_TRANSITION' as const;
   constructor(
-    readonly from: ContractStatus,
-    readonly to: ContractStatus,
+    readonly from: StatusType,
+    readonly to: StatusType,
   ) {
     super(`Illegal contract status transition from "${from}" to "${to}".`);
     this.name = 'InvalidContractTransitionError';
@@ -100,7 +106,7 @@ export class InvalidContractTransitionError extends Error {
  */
 export function applyContractStatusTransition(
   contract: Contract,
-  to: ContractStatus,
+  to: StatusType,
 ): Contract {
   if (!canNTransitionContractStatus(contract.status, to)) {
     throw new InvalidContractTransitionError(contract.status, to);
