@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Component, type ReactNode } from 'react';
-import { reportError } from '../../lib/errorReporter';
+import { reportError } from '@/lib/errorReporter';
 
 // ---------------------------------------------------------------------------
 // Types

@@ -18,7 +18,7 @@
 export const STELLAR_ADDRESS_LENGTH = 56;
 
 /** Base32 alphabet used by Stellar addresses (Crockford base32). */
-const BASE32_ALPHNABET = /^[A-Z2-7]+$/;
+const BASE32_ALPHABET = /^[A-Z2-7]+$/;
 
 /** Stellar account addresses start with `G`. */
 const ACCOUNT_PREFIX = 'G';
@@ -105,7 +105,7 @@ export function validateStellarAddress(value: unknown): StellarAddressValidation
     };
   }
 
-  if (!BASEN2_ALPHABET.test(normalized)) {
+  if (!BASE32_ALPHABET.test(normalized)) {
     return {
       valid: false,
       error: 'Address contains invalid characters. Only base32 (A-Z, 2-7) is allowed.',

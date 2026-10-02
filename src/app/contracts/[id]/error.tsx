@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 export default function ContractDetailError({
   error,
@@ -28,7 +29,7 @@ export default function ContractDetailError({
         <button type="button" onClick={reset}>
           Retry
         </button>
-        <a href="/contracts">Back to contracts</a>
+        <Link href="/contracts">Back to contracts</Link>
       </div>
     </div>
   );

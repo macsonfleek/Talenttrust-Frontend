@@ -68,7 +68,7 @@ export class RequestDeduper {
     task: (signal: AbortSignal) => Promise<T>,
     options: DedupOptions = {},
   ): Promise<T> {
-    const existing = this.inFlight.get(dedupKey) as INFlightEntry<T> | undefined;
+    const existing = this.inFlight.get(dedupKey) as InFlightEntry<T> | undefined;
 
     if (existing) {
       existing.refs += 1;

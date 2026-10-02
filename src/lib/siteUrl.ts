@@ -227,8 +227,14 @@ export function createSiteUrlResolver(options: SiteUrlResolverOptions = {}): Sit
       ? Object.freeze({ url: fallback, source: 'default', reason: resolved.reason })
       : Object.freeze(resolved);
 
-    // An unset variable is the normal development default, not a
+    // An *unset* variable is the normal development default, not a
     // misconfiguration, so it must not generate log noise.
+    //
+    // A variable that is present but blank is deliberately treated as a
+    // misconfiguration: `NEXT_PUBLIC_SITE_URL=''` is what a deploy pipeline
+    // usually produces when a required variable fails to expand, and falling back
+    // to localhost silently would ship wrong absolute URLs. Refusing quietly is
+    // the worse failure, so the warning stands.
     if (
       withFallback.source === 'default' &&
       withFallback.reason !== undefined &&

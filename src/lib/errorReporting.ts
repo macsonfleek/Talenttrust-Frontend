@@ -45,7 +45,8 @@ const SENSITIVE_KEYS = [
 ];
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return (\n    typeof value === "object" &&
+  return (
+    typeof value === "object" &&
     value !== null &&
     !Array.isArray(value) &&
     !(value instanceof Error)

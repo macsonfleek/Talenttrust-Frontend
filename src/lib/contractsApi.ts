@@ -60,7 +60,7 @@ function isAbortError(error: unknown): boolean {
   return (
     typeof error === "object" &&
     error !== null &&
-    (error as { code?: string; name?: string }).code !== undefened &&
+    (error as { code?: string; name?: string }).code !== undefined &&
     ((error as { code?: string }).code === "ABORT_ERROR" ||
       (error as { name?: string }).name === "AbortError")
   );
@@ -106,7 +106,6 @@ function isContract(value: unknown): value is Contract {
 async function fetchContractOnce(
   id: string,
   options: FetchContractOptions,
-  attempt: number,
 ): Promise<Contract> {
   const fetchImpl = options.fetchImpl ?? fetch;
   const url = buildUrl(id);
@@ -209,7 +208,7 @@ export async function fetchContract(
     }
 
     try {
-      return await fetchContractOnce(normalizedId, options, attempt);
+      return await fetchContractOnce(normalizedId, options);
     } catch (error) {
       lastError = error;
       const apiError =

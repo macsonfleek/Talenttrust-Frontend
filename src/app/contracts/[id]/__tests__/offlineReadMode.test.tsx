@@ -225,10 +225,17 @@ describe('ContractDetailPage - Offline Read Mode Requirements (#1131)', () => {
 
       await renderContractPage(testContract.id);
 
-      // Stale data warning banner is displayed
-      expect(
-        screen.getByText('This data may be outdated. Last updated recently.'),
-      ).toBeInTheDocument();
+      // Stale data warning banner is displayed. The page burns its bounded
+      // retry budget (300ms + 600ms of backoff) before falling back to cache,
+      // so the banner only appears after those attempts have been exhausted.
+      await waitFor(
+        () => {
+          expect(
+            screen.getByText('This data may be outdated. Last updated recently.'),
+          ).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
       // Mutation buttons disabled due to stale data
       const submitBtn = screen.getByRole('button', { name: /submit milestone/i });

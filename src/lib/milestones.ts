@@ -1,1 +1,230 @@
-LyoqCiAqIEBmaWxlIG1pbGVzdG9uZXMudHMKICoKICogUHVyZSBkb21haW4gaGVscGVycyBmb3IgdGhlIG1pbGVzdG9uZXMgZmVhdHVyZS4KICoKICogVGhpcyBtb2R1bGUgaXMgdGhlIHNpbmdsZSBzb3VyY2Ugb2YgdHJ1dGggZm9yIHRoZSBtaWxlc3RvbmUgc3RhdGUgbW9kZWw6CiAqIG5vcm1hbGl6YXRpb24gb2YgcmF3IEFQSSBwYXlsb2Fkcywgc3RhdHVzIHRyYW5zaXRpb24gcnVsZXMsIGFuZCB0aGUKICogZGVyaXZlZCB2YWx1ZXMgdXNlZCBieSB0aGUgaG9vayBhbmQgdGhlIHJvdyBjb21wb25lbnQuIEV2ZXJ5IGZ1bmN0aW9uCiAqIGhlcmUgaXMgcHVyZSBhbmQgZGV0ZXJtaW5pc3RpYyBzbyB0aGUgY29tcG9uZW50cyBjYW4gYmUgdGVzdGVkIGluCiAqIGlzb2xhdGlvbiBhbmQgcmV0cmllcyBjYW4gbmV2ZXIgcHJvZHVjZSBhbiBpbmNvbnNpc3RlbnQgc3RhdGUuCiAqCiAqIEludmFyaWFudHM6CiAqIC0gQSBtaWxlc3RvbmUgYWx3YXlzIGhhcyBhIG5vbi1lbXB0eSBpZCwgdGl0bGUsIGFuZCBhIHZhbGlkIHN0YXR1cy4KICogLSBUaGUgY29sbGVjdGlvbiByZXR1cm5lZCBieSBub3JtYWxpemVNaWxlc3RvbmVzIGlzIGRlZHVwbGljYXRlZCBieSBpZAogKiAgIChsYXN0IHdyaXRlIHdpbnMpIGFuZCBzb3J0ZWQgYnkgZHVlIGRhdGUgdGhlbiBpZCwgc28gaXQgaXMgc3RhYmxlCiAqICAgcmVnYXJkbGVzcyBvZiB0aGUgaW5jb21pbmcgb3JkZXIuCiAqIC0gU3RhdHVzIHRyYW5zaXRpb25zIGFyZSBleHBsaWNpdGx5IGFsbG93LWxpc3RlZDsgYW55dGhpbmcgZWxzZSBpcwogKiAgIHJlamVjdGVkIHdpdGggYSB0eXBlZCBmYWlsdXJlIHJhdGhlciB0aGFuIHNpbGVudGx5IGFwcGxpZWQuCiAqLwoKaW1wb3J0IHR5cGUgeyBTdGF0dXNUeXBlIH0gZnJvbSAnQC9jb21wb25lbnRzL1N0YXR1c0JhZGdlJzsKCi8qKiBUaGUgY2Fub25pY2FsIG1pbGVzdG9uZSBzdGF0dXMgdmFsdWVzLiAqLwpleHBvcnQgY29uc3QgTUlMRVNUT05FX1NUQVRVU0VTOiByZWFkb25seSBTdGF0dXNUeXBlW10gPSBbCiAgJ0FjdGl2ZScsCiAgJ0NvbXBsZXRlZCcsCiAgJ0Rpc3B1dGVkJywKICAnUGVuZGluZycsCiAgJ1BhaWQnLApdIGFzIGNvbnN0OwoKY29uc3QgU1RBVFVTX1NFVDogUmVhZFNldDxTdGF0dXNUeXBlPiA9IG5ldyBTZXQoTUlMRVNUT05FX1NUQVRVU0VTKTsKCi8qKiBUaGUgZGVmYXVsdCBzdGF0dXMgYXNzaWduZWQgdG8gYSBtaWxlc3RvbmUgd2l0aCBubyB2YWxpZCBzdGF0dXMuICovCmV4cG9ydCBjb25zdCBERUZBVUxUX01JTEVTVE9ORV9TVEFUVVM6IFN0YXR1c1R5cGUgPSAnUGVuZGluZyc7CgovKiogVGhlIGRlZmF1bHQgZHVlLXNvb24gd2luZG93LCBpbiBkYXlzLiAqLwpjb25zdCBERUZBVUxUX0RVUl9TT09OX1dJTkRPV19EQVlTID0gNzsKCi8qKiBBIG1pbGVzdG9uZSBhcyBleHBvc2VkIHRvIHRoZSBVSS4gKi8KZXhwb3J0IGludGVyZmFjZSBNaWxlc3RvbmUgewogIGlkOiBzdHJpbmc7CiAgdGl0bGU6IHN0cmluZzsKICBzdGF0dXM6IFN0YXR1c1R5cGU7CiAgLyoqIElTTyBkYXRlIHN0cmluZyBvciBhIGRpc3BsYXkgZGF0ZTsgbWF5IGJlIG1pc3Npbmcgb24gbGVnYWN5IHBheWxvYWRzLiAqLwogIGR1ZURhdGU/OiBzdHJpbmc7CiAgLyoqIEFtb3VudCBpbiB0aGUgY29udHJhY3QncyBjdXJyZW5jeSB1bml0cy4gKi8KICBhbW91bnQ/OiBudW1iZXI7CiAgLyoqIEZyZWUtZm9ybSBkZXNjcmlwdGlvbiwgbWF5IGJlIGFic2VudC4gKi8KICBkZXNjcmlwdGlvbj86IHN0cmluZzsKfQoKLyoqIFJhdyBzaGFwZSBhY2NlcHRlZCBmcm9tIHRoZSBBUEkgLyBwcm9wcy4gKi8KZXhwb3J0IGludGVyZmFjZSBSYXdNaWxlc3RvbmUgewogIGlkPzogdW5rbm93bjsKICB0aXRsZT86IHVua25vd247CiAgbmFtZT86IHVua25vd247CiAgc3RhdHVzPzogdW5rbm93bjsKICBkdWVEYXRlPzogdW5rbm93bjsKICBkdWVfZGF0ZT86IHVua25vd247CiAgYW1vdW50PzogdW5rbm93bjsKICBkZXNjcmlwdGlvbj86IHVua25vd247CiAgW2tleTogc3RyaW5nXTogdW5rbm93bjsKfQoKLyoqIFJlc3VsdCBvZiBhIG5vcm1hbGl6YXRpb24gYXR0ZW1wdC4gKi8KZXhwb3J0IHR5cGUgTm9ybWFsaXplUmVzdWx0ID0KICB8IHsgb2s6IHRydWU7IG1pbGVzdG9uZTogTWlsZXN0b25lIH0KICB8IHsgb2s6IGZhbHNlOyByZWFzb246IHN0cmluZyB9OwoKLyoqIFJldHVybnMgdHJ1ZSB3aGVuIGB2YWx1ZWAgaXMgYSBub24tZW1wdHkgc3RyaW5nLiAqLwpjb25zdCBpc05vbkVtcHR5U3RyaW5nID0gKHZhbHVlOiB1bmtub3duKTogdmFsdWUgaXMgc3RyaW5nID0+CiAgdHlwZW9mIHZhbHVlID09PSAnc3RyaW5nJyAmJiB2YWx1ZS50cmltKCkubGVuZ3RoID4gMDsKCi8qKiBOYXJyb3dzIGFuIGFyYml0cmFyeSB2YWx1ZSB0byBhIGtub3duIG1pbGVzdG9uZSBzdGF0dXMuICovCmV4cG9ydCBjb25zdCBpc01pbGVzdG9uZVN0YXR1cyA9ICh2YWx1ZTogdW5rbm93bik6IHZhbHVlIGlzIFN0YXR1c1R5cGUgPT4KICB0eXBlb2YgdmFsdWUgPT09ICdzdHJpbmcnICYmIFNUQVRVU19TRVQuaGFzKHZhbHVlIGFzIFN0YXR1c1R5cGUpOwoKLyoqCiAqIENvZXJjZXMgYW4gYXJiaXRyYXJ5IHZhbHVlIHRvIGEga25vd24gbWlsZXN0b25lIHN0YXR1cy4KICoKICogVW5rbm93biBvciBtaXNzaW5nIHN0YXR1c2VzIGZhbGwgYmFjayB0byBgREVGQVVMVF9NSUxFU1RPTkVfU1RBVFVTYCBzbyBhCiAqIG1hbGZvcm1lZCBwYXlsb2FkIG5ldmVyIHByb2R1Y2VzIGFuIHVucmVuZGVyYWJsZSBiYWRnZSBvciBhbiB1bmRlZmluZWQKICogdGFsbHkgYnVja2V0LgogKi8KZXhwb3J0IGNvbnN0IHRvTWlsZXN0b25lU3RhdHVzID0gKHZhbHVlOiB1bmtub3duKTogU3RhdHVzVHlwZSA9PgogIGlzTWlsZXN0b25lU3RhdHVzKHZhbHVlKSA/IHZhbHVlIDogREVGQVVMVF9NSUxFU1RPTkVfU1RBVFVTOwoKLyoqCiAqIE5vcm1hbGl6ZXMgYSByYXcgbWlsZXN0b25lIHBheWxvYWQgaW50byB0aGUgY2Fub25pY2FsIGBNaWxlc3RvbmVgCiAqIHNoYXBlLgoKICogUmV0dXJucyBhIHR5cGVkIGZhaWx1cmUgKG5ldmVyIHRocm93cykgd2hlbiB0aGUgcGF5bG9hZCBsYWNrcyBhIHVzYWJsZQogKiBpZCBvciB0aXRsZSwgc28gY2FsbGVycyBjYW4gZGVjaWRlIHdoZXRoZXIgdG8gc2tpcCBvciBzdXJmYWNlIHRoZSBlbnRyeS4KICovCmV4cG9ydCBjb25zdCBub3JtYWxpemVNaWxlc3RvbmUgPSAocmF3OiBSYXdNaWxlc3RvbmUpOiBOb3JtYWxpemVSZXN1bHQgPT4gewogIGlmICghcmF3IHx8IHR5cGVvZiByYXcgIT09ICdvYmplY3QnKSB7CiAgICByZXR1cm4geyBvazogZmFsc2UsIHJlYXNvbjogJ21pbGVzdG9uZSBpcyBub3QgYW4gb2JqZWN0JyB9OwogIH0KCiAgY29uc3QgaWQgPSByYXcuaWQ7CiAgaWYgKCFpc05vbkVtcHR5U3RyaW5nKGlkKSkgewogICAgcmV0dXJuIHsgb2s6IGZhbHNlLCByZWFzb246ICdtaWxlc3RvbmUgaXMgbWlzc2luZyBhIG5vbi1lbXB0eSBpZCcgfTsKICB9CgogIGNvbnN0IHRpdGxlU291cmNlID0gaXNOb25FbXB0eVN0cmluZyhyYXcudGl0bGUpID8gcmF3LnRpdGxlIDogcmF3Lm5hbWU7CiAgaWYgKCFpc05vbkVtcHR5U3RyaW5nKHRpdGxlU291cmNlKSkgewogICAgcmV0dXJuIHsgb2s6IGZhbHNlLCByZWFzb246ICdtaWxlc3RvbmUgaXMgbWlzc2luZyBhIG5vbi1lbXB0eSB0aXRsZScgfTsKICB9CgogIGNvbnN0IGR1ZURhdGVTb3VyY2UgPSByYXcuZHVlRGF0ZSA/PyByYXcuZHVlX2RhdGU7CiAgY29uc3QgYW1vdW50U291cmNlID0gcmF3LmFtb3VudDsKCiAgY29uc3QgbWlsZXN0b25lOiBNaWxlc3RvbmUgPSB7CiAgICBpZDogaWQudHJpbSgpLAogICAgdGl0bGU6IHRpdGxlU291cmNlLnRyaW0oKSwKICAgIHN0YXR1czogdG9NaWxlc3RvbmVTdGF0dXMocmF3LnN0YXR1cyksCiAgfTsKCiAgaWYgKGlzTm9uRW1wdHlTdHJpbmcoZHVlRGF0ZVNvdXJjZSkpIHsKICAgIG1pbGVzdG9uZS5kdWVEYXRlID0gZHVlRGF0ZVNvdXJjZS50cmltKCk7CiAgfQoKICBpZiAodHlwZW9mIGFtb3VudFNvdXJjZSA9PT0gJ251bWJlcicgJiYgTnVtYmVyLmZpbml0ZShhbW91bnRTb3VyY2UpKSB7CiAgICBtaWxlc3RvbmUuYW1vdW50ID0gYW1vdW50U291cmNlOwogIH0gZWxzZSBpZiAoaXNOb25FbXB0eVN0cmluZyhhbW91bnRTb3VyY2UpKSB7CiAgICBjb25zdCBwYXJzZWQgPSBOdW1iZXIoYW1vdW50U291cmNlKTsKICAgIGlmIChOdW1iZXIuZmluaXRlKHBhcnNlZCkpIHsKICAgICAgbWlsZXN0b25lLmFtb3VudCA9IHBhcnNlZDsKICAgIH0KICB9CgogIGlmIChpc05vbkVtcHR5U3RyaW5nKHJhdy5kZXNjcmlwdGlvbikpIHsKICAgIG1pbGVzdG9uZS5kZXNjcmlwdGlvbiA9IHJhdy5kZXNjcmlwdGlvbi50cmltKCk7CiAgfQoKICByZXR1cm4geyBvazogdHJ1ZSwgbWlsZXN0b25lIH07Cn07CgovKiogQ29tcGFyZXMgdHdvIG1pbGVzdG9uZXMgYnkgZHVlIGRhdGUgdGhlbiBpZCwgZm9yIGEgZGV0ZXJtaW5pc3RpYyBvcmRlci4gKi8KY29uc3QgY29tcGFyZU1pbGVzdG9uZXMgPSAoYTogTWlsZXN0b25lLCBiOiBNaWxlc3RvbmUpOiBudW1iZXIgPT4gewogIGNvbnN0IGFEdWUgPSBhLmR1ZURhdGUgPT0gbnVsbCA/IE51bWJlci5QT1NJVElWRV9JTkZJTklUWSA6IERhdGUucGFyc2UoYS5kdWVEYXRlKTsKICBjb25zdCBiRHVlID0gYi5kdWVEYXRlID09IG51bGwgPyBOdW1iZXIuUE9TSVRJVkVfSU5GSU5JVFkgOiBEYXRlLnBhcnNlKGIuZHVlRGF0ZSk7CiAgY29uc3Qgbm9ybWFsaXplZEFEdWUgPSBOdW1iZXIuaXNOYU4oYUR1ZSkgPyBOdW1iZXIuUE9TSVRJVkVfSU5GSU5JVFkgOiBhRHVlOwogIGNvbnN0IG5vcm1hbGl6ZWJEdWUgPSBOdW1iZXIuaXNOYU4oYkR1ZSkgPyBOdW1iZXIuUE9TSVRJVkVfSU5GSU5JVFkgOiBiRHVlOwoKICBpZiAobm9ybWFsaXplZEFEdWUgIT09IG5vcm1hbGl6ZWJEdWUpIHsKICAgIHJldHVybiBub3JtYWxpemVkQUR1ZSAtIG5vcm1hbGl6ZWJEdWU7CiAgfQoKICBpZiAoYS5pZCA9PT0gYi5pZCkgcmV0dXJuIDA7CiAgcmV0dXJuIGEuaWQgPCBiLmlkID8gLTEgOiAxOwp9OwoKLyoqCiAqIE5vcm1hbGl6ZXMgYW4gYXJyYXkgb2YgcmF3IG1pbGVzdG9uZXMgaW50byBhIGRlZHVwbGljYXRlZCwgZGV0ZXJtaW5pc3RpY2FsbHkKICogb3JkZXJlZCBjb2xsZWN0aW9uLgoKICogLSBFbnRyaWVzIHRoYXQgZmFpbCBub3JtYWxpemF0aW9uIGFyZSBza2lwcGVkICh0aGV5IGNhbm5vdCBiZSByZW5kZXJlZCkKICogICBhbmQgdGhlaXIgcmVhc29ucyBhcmUgcmV0dXJuZWQgc28gY2FsbGVycyBjYW4gbG9nIHRoZW0uCiAqIC0gRHVwbGljYXRlIGlkcyBhcmUgY29sbGFwc2VkOyB0aGUgbGFzdCBvY2N1cnJlbmNlIHdpbnMsIG1hdGNoaW5nIHRoZQogKiAgIGJlaGF2aW91ciBvZiBhIGtleWVkIG1hcCBhbmQgYXZvaWRpbmcgUmVhY3Qga2V5IGNvbGxpc2lvbnMuCiAqIC0gVGhlIHJlc3VsdCBpcyBzb3J0ZWQgYnkgZHVlIGRhdGUgdGhlbiBpZCwgc28gcmV0cmllcyBhbmQgY29uY3VycmVudAogKiAgIHJlc3BvbnNlcyBwcm9kdWNlIHRoZSBzYW1lIGxpc3QuCiAqLwpleHBvcnQgY29uc3Qgbm9ybWFsaXplTWlsZXN0b25lcyA9IChyYXdNaWxlc3RvbmVzOiB1bmtub3duKTogTWlsZXN0b25lW10gPT4gewogIGlmICghQXJyYXkuaXNBcnJheShyYXdNaWxlc3RvbmVzKSkgcmV0dXJuIFtdOwoKICBjb25zdCBieUlkID0gbmV3IE1hcDxzdHJpbmcsIE1pbGVzdG9uZT4oKTsKCiAgZm9yIChjb25zdCByYXcgb2YgcmF3TWlsZXN0b25lcykgewogICAgY29uc3QgcmVzdWx0ID0gbm9ybWFsaXplTWlsZXN0b25lKHJhdyBhcyBSYXdNaWxlc3RvbmUpOwogICAgaWYgKCFyZXN1bHQub2spIGNvbnRpbnVlOwogICAgYnlJZC5zZXQocmVzdWx0Lm1pbGVzdG9uZS5pZCwgcmVzdWx0Lm1pbGVzdG9uZSk7CiAgfQoKICByZXR1cm4gQXJyYXkuZnJvbShieUlkLnZhbHVlcygpKS5zb3J0KGNvbXBhcmVNaWxlc3RvbmVzKTsKfTsKCi8qKiBUaGUgYWxsb3dlZCBzdGF0dXMgdHJhbnNpdGlvbnMsIGtleWVkIGJ5IGN1cnJlbnQgc3RhdHVzLiAqLwpjb25zdCBBTExPV0VEX1RSQU5TSVRJT05TOiBSZWFkT25seVJlY29yZDxTdGF0dXNUeXBlLCByZWFkb25seSBTdGF0dXNUeXBlW10+ID0gewogIEFjdGl2ZTogWydDb21wbGV0ZWQnLCAnRGlzcHV0ZWQnXSwKICBQZW5kaW5nOiBbJ0FjdGl2ZScsICdEaXNwdXRlZCddLAogIENvbXBsZXRlZDogWydQYWlkJywgJ0Rpc3B1dGVkJ10sCiAgRGlzcHV0ZWQ6IFsnQWN0aXZlJywgJ0NvbXBsZXRlZCddLAogIFBhaWQ6IFtdLAp9IGFzIGNvbnN0OwoKLyoqIFJlc3VsdCBvZiBhIHN0YXR1cyB0cmFuc2l0aW9uIGF0dGVtcHQuICovCmV4cG9ydCB0eXBlIFRyYW5zaXRpb25SZXN1bHQgPQogIHwgeyBvazogdHJ1ZTsgbWlsZXN0b25lOiBNaWxlc3RvbmUgfQogIHwgeyBvazogZmFsc2U7IHJlYXNvbjogc3RyaW5nIH07CgovKiogUmV0dXJucyB0aGUgc3RhdHVzZXMgYSBtaWxlc3RvbmUgbWF5IG1vdmUgdG8gZnJvbSBpdHMgY3VycmVudCBzdGF0dXMuICovCmV4cG9ydCBjb25zdCBhbGxvd2VkTmV4dFN0YXR1c2VzID0gKGN1cnJlbnQ6IFN0YXR1c1R5cGUpOiBTdGF0dXNUeXBlW10gPT4KICBbLi4uKEFMTE9XRURfVFJBTlNJVElPTlNbY3VycmVudF0gPz8gW10pXTsKCi8qKgogKiBBcHBsaWVzIGEgc3RhdHVzIHRyYW5zaXRpb24gdG8gYSBtaWxlc3RvbmUsIGVuZm9yY2luZyB0aGUgYWxsb3ctbGlzdC4KICoKICogVGhpcyBpcyB0aGUgb25seSBzdXBwb3J0ZWQgd2F5IHRvIGNoYW5nZSBhIG1pbGVzdG9uZSdzIHN0YXR1cy4gSXQKICogcmV0dXJucyBhIG5ldyBvYmplY3QgYW5kIG5ldmVyIG11dGF0ZXMgaXRzIGlucHV0LCBzbyBjb25jdXJyZW50IHVwZGF0ZXMKICogY2Fubm90IGNvcnJ1cHQgYSBwcmV2aW91c2x5IHJlbmRlcmVkIHN0YXRlLgogKi8KZXhwb3J0IGNvbnN0IGFwcGx5U3RhdHVzVHJhbnNpdGlvbiA9ICgKICBtaWxlc3RvbmU6IE1pbGVzdG9uZSwKICBuZXh0U3RhdHVzOiB1bmtub3duLAp):IFRyYW5zaXRpb25SZXN1bHQgPT4gewogIGlmICghaXNNaWxlc3RvbmVTdGF0dXMobmV4dFN0YXR1cykpIHsKICAgIHJldHVybiB7IG9rOiBmYWxzZSwgcmVhc29uOiAndW5rbm93biBtaWxlc3RvbmUgc3RhdHVzJyB9OwogIH0KCiAgaWYgKG5leHRTdGF0dXMgPT09IG1pbGVzdG9uZS5zdGF0dXMpIHsKICAgIHJldHVybiB7IG9rOiB0cnVlLCBtaWxlc3RvbmUgfTsKICB9CgogIGNvbnN0IGFsbG93ZWQgPSBBTExPV0VEX1RSQU5TSVRJT05TW21pbGVzdG9uZS5zdGF0dXNdID8/IFtdOwogIGlmICghYWxsb3dlZC5pbmNsdWRlcyhuZXh0U3RhdHVzKSkgewogICAgcmV0dXJuIHsKICAgICAgb2s6IGZhbHNlLAogICAgICByZWFzb246IGB0cmFuc2l0aW9uIGZyb20gJHttaWxlc3RvbmUuc3RhdHVzfSB0byAke25leHRTdGF0dXN9IGlzIG5vdCBhbGxvd2VkYCwKICAgIH07CiAgfQoKICByZXR1cm4geyBvazogdHJ1ZSwgbWlsZXN0b25lOiB7IC4uLm1pbGVzdG9uZSwgc3RhdHVzOiBuZXh0U3RhdHVzIH0gfTsKfTsKCi8qKiBUaGUgZGVmYXVsdCBkdWUtc29vbiB3aW5kb3cgdXNlZCBieSB0aGUgcm93IGNvbXBvbmVudC4gKi8KZXhwb3J0IGNvbnN0IERFRkFVTFRfRFVFX1NPT05fV0lORE9XX0RBWVMgPSBERUZBVUxUX0RVUl9TT09OX1dJTkRPV19EQVlTOwo=
+/**
+ * @file milestones.ts
+ *
+ * Pure domain helpers for the milestones feature.
+ *
+ * This module is the single source of truth for the milestone state model:
+ * normalization of raw API payloads, status transition rules, and the
+ * derived values used by the hook and the row component. Every function
+ * here is pure and deterministic so the components can be tested in
+ * isolation and retries can never produce an inconsistent state.
+ *
+ * Invariants:
+ * - A milestone always has a non-empty id, title, and a valid status.
+ * - The collection returned by normalizeMilestones is deduplicated by id
+ *   (last write wins) and sorted by due date then id, so it is stable
+ *   regardless of the incoming order.
+ * - Status transitions are explicitly allow-listed; anything else is
+ *   rejected with a typed failure rather than silently applied.
+ */
+
+import type { StatusType } from '@/components/StatusBadge';
+
+/** The canonical milestone status values. */
+export const MILESTONE_STATUSES: readonly StatusType[] = [
+  'Active',
+  'Completed',
+  'Disputed',
+  'Pending',
+  'Paid',
+] as const;
+
+const STATUS_SET: ReadonlySet<StatusType> = new Set(MILESTONE_STATUSES);
+
+/** The default status assigned to a milestone with no valid status. */
+export const DEFAULT_MILESTONE_STATUS: StatusType = 'Pending';
+
+/** The default due-soon window, in days. */
+const DEFAULT_DUR_SOON_WINDOW_DAYS = 7;
+
+/** A milestone as exposed to the UI. */
+export interface Milestone {
+  id: string;
+  title: string;
+  status: StatusType;
+  /** ISO date string or a display date; may be missing on legacy payloads. */
+  dueDate?: string;
+  /** Amount in the contract's currency units. */
+  amount?: number;
+  /** Free-form description, may be absent. */
+  description?: string;
+}
+
+/** Raw shape accepted from the API / props. */
+export interface RawMilestone {
+  id?: unknown;
+  title?: unknown;
+  name?: unknown;
+  status?: unknown;
+  dueDate?: unknown;
+  due_date?: unknown;
+  amount?: unknown;
+  description?: unknown;
+  [key: string]: unknown;
+}
+
+/** Result of a normalization attempt. */
+export type NormalizeResult =
+  | { ok: true; milestone: Milestone }
+  | { ok: false; reason: string };
+
+/** Returns true when `value` is a non-empty string. */
+const isNonEmptyString = (value: unknown): value is string =>
+  typeof value === 'string' && value.trim().length > 0;
+
+/** Narrows an arbitrary value to a known milestone status. */
+export const isMilestoneStatus = (value: unknown): value is StatusType =>
+  typeof value === 'string' && STATUS_SET.has(value as StatusType);
+
+/**
+ * Coerces an arbitrary value to a known milestone status.
+ *
+ * Unknown or missing statuses fall back to `DEFAULT_MILESTONE_STATUS` so a
+ * malformed payload never produces an unrenderable badge or an undefined
+ * tally bucket.
+ */
+export const toMilestoneStatus = (value: unknown): StatusType =>
+  isMilestoneStatus(value) ? value : DEFAULT_MILESTONE_STATUS;
+
+/**
+ * Normalizes a raw milestone payload into the canonical `Milestone`
+ * shape.
+
+ * Returns a typed failure (never throws) when the payload lacks a usable
+ * id or title, so callers can decide whether to skip or surface the entry.
+ */
+export const normalizeMilestone = (raw: RawMilestone): NormalizeResult => {
+  if (!raw || typeof raw !== 'object') {
+    return { ok: false, reason: 'milestone is not an object' };
+  }
+
+  const id = raw.id;
+  if (!isNonEmptyString(id)) {
+    return { ok: false, reason: 'milestone is missing a non-empty id' };
+  }
+
+  const titleSource = isNonEmptyString(raw.title) ? raw.title : raw.name;
+  if (!isNonEmptyString(titleSource)) {
+    return { ok: false, reason: 'milestone is missing a non-empty title' };
+  }
+
+  const dueDateSource = raw.dueDate ?? raw.due_date;
+  const amountSource = raw.amount;
+
+  const milestone: Milestone = {
+    id: id.trim(),
+    title: titleSource.trim(),
+    status: toMilestoneStatus(raw.status),
+  };
+
+  if (isNonEmptyString(dueDateSource)) {
+    milestone.dueDate = dueDateSource.trim();
+  }
+
+  if (typeof amountSource === 'number' && Number.isFinite(amountSource)) {
+    milestone.amount = amountSource;
+  } else if (isNonEmptyString(amountSource)) {
+    const parsed = Number(amountSource);
+    if (Number.isFinite(parsed)) {
+      milestone.amount = parsed;
+    }
+  }
+
+  if (isNonEmptyString(raw.description)) {
+    milestone.description = raw.description.trim();
+  }
+
+  return { ok: true, milestone };
+};
+
+/** Compares two milestones by due date then id, for a deterministic order. */
+const compareMilestones = (a: Milestone, b: Milestone): number => {
+  const aDue = a.dueDate == null ? Number.POSITIVE_INFINITY : Date.parse(a.dueDate);
+  const bDue = b.dueDate == null ? Number.POSITIVE_INFINITY : Date.parse(b.dueDate);
+  const normalizedADue = Number.isNaN(aDue) ? Number.POSITIVE_INFINITY : aDue;
+  const normalizebDue = Number.isNaN(bDue) ? Number.POSITIVE_INFINITY : bDue;
+
+  if (normalizedADue !== normalizebDue) {
+    return normalizedADue - normalizebDue;
+  }
+
+  if (a.id === b.id) return 0;
+  return a.id < b.id ? -1 : 1;
+};
+
+/**
+ * Normalizes an array of raw milestones into a deduplicated, deterministically
+ * ordered collection.
+
+ * - Entries that fail normalization are skipped (they cannot be rendered)
+ *   and their reasons are returned so callers can log them.
+ * - Duplicate ids are collapsed; the last occurrence wins, matching the
+ *   behaviour of a keyed map and avoiding React key collisions.
+ * - The result is sorted by due date then id, so retries and concurrent
+ *   responses produce the same list.
+ */
+export const normalizeMilestones = (rawMilestones: unknown): Milestone[] => {
+  if (!Array.isArray(rawMilestones)) return [];
+
+  const byId = new Map<string, Milestone>();
+
+  for (const raw of rawMilestones) {
+    const result = normalizeMilestone(raw as RawMilestone);
+    if (!result.ok) continue;
+    byId.set(result.milestone.id, result.milestone);
+  }
+
+  return Array.from(byId.values()).sort(compareMilestones);
+};
+
+/** The allowed status transitions, keyed by current status. */
+const ALLOWED_TRANSITIONS: Readonly<Record<StatusType, readonly StatusType[]>> = {
+  Active: ['Completed', 'Disputed'],
+  Pending: ['Active', 'Disputed'],
+  Completed: ['Paid', 'Disputed'],
+  Disputed: ['Active', 'Completed'],
+  Paid: [],
+  Archived: [],
+} as const;
+
+/** Result of a status transition attempt. */
+export type TransitionResult =
+  | { ok: true; milestone: Milestone }
+  | { ok: false; reason: string };
+
+/** Returns the statuses a milestone may move to from its current status. */
+export const allowedNextStatuses = (current: StatusType): StatusType[] =>
+  [...(ALLOWED_TRANSITIONS[current] ?? [])];
+
+/**
+ * Applies a status transition to a milestone, enforcing the allow-list.
+ *
+ * This is the only supported way to change a milestone's status. It
+ * returns a new object and never mutates its input, so concurrent updates
+ * cannot corrupt a previously rendered state.
+ */
+export const applyStatusTransition = (
+  milestone: Milestone,
+  nextStatus: unknown,
+): TransitionResult => {
+  if (!isMilestoneStatus(nextStatus)) {
+    return { ok: false, reason: 'unknown milestone status' };
+  }
+
+  if (nextStatus === milestone.status) {
+    return { ok: true, milestone };
+  }
+
+  const allowed = ALLOWED_TRANSITIONS[milestone.status] ?? [];
+  if (!allowed.includes(nextStatus)) {
+    return {
+      ok: false,
+      reason: `transition from ${milestone.status} to ${nextStatus} is not allowed`,
+    };
+  }
+
+  return { ok: true, milestone: { ...milestone, status: nextStatus } };
+};
+
+/** The default due-soon window used by the row component. */
+export const DEFAULT_DUE_SOON_WINDOW_DAYS = DEFAULT_DUR_SOON_WINDOW_DAYS;

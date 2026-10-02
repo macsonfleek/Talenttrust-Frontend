@@ -84,7 +84,14 @@ export const MilestoneCreationForm: React.FC<MilestoneCreationFormProps> = ({
   const [currency, setCurrency] = useState<string>('USD');
   const [status, setStatus] = useState<Milestone['status']>('Pending');
   const [dueDate, setDueDate] = useState('');
-  const { errors, validateAndSubmit } = useFormValidation();
+  /**
+   * Field-level errors produced by the last submit attempt.
+   *
+   * Invariant: only ever written from `handleSubmit`, so the summary and the
+   * per-field messages are always a snapshot of one validation pass and can
+   * never disagree with each other. Reset by the next submit attempt.
+   */
+  const [errors, setErrors] = useState<Array<{ fieldId: string; message: string }>>([]);
   // Tracks whether the user has attempted a submit, so the submit button is
   // only disabled *after* the first failed validation (never before).
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -159,7 +166,7 @@ export const MilestoneCreationForm: React.FC<MilestoneCreationFormProps> = ({
   );
 
   // Check if the form has any validation errors to disable submit button
-  const hasErrors = () => {
+  const _hasErrors = () => {
     if (!hasSubmitted) return false;
 
     const allErrors = validateMilestone({ title, payout, currency, dueDate, status });

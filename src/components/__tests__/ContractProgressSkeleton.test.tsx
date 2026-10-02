@@ -36,10 +36,15 @@ describe('ContractProgressSkeleton', () => {
       expect(region).toHaveAttribute('aria-busy', 'true');
     });
 
-    it('does not reference the live heading while that heading is absent', () => {
+    it('references the live heading id so the name is derived identically in both states', () => {
+      // INV-2: `aria-labelledby` is kept even while the target is absent, because
+      // that is what makes the loading -> loaded swap preserve the accessible name
+      // computation. The name therefore falls back to `aria-label` until the real
+      // heading mounts.
       render(<ContractProgressSkeleton />);
       const region = screen.getByRole('region', { name: /loading escrow progress/i });
-      expect(region).not.toHaveAttribute('aria-labelledby');
+      expect(region).toHaveAttribute('aria-labelledby', 'contract-progress-title');
+      expect(document.getElementById('contract-progress-title')).toBeNull();
     });
 
     it('falls back to aria-label when the aria-labelledby target is absent', () => {

@@ -1,3 +1,4 @@
+
 import type { StatusType } from '@/components/StatusBadge';
 
 export const STATUS_ORDER: StatusType[] = ['Active', 'Completed', 'Disputed', 'Pending', 'Paid'];
@@ -11,11 +12,6 @@ export interface StatusTally {
  * Canonical set of status values that the tally may report.
  * Used to guard against unknown/stale status values at the boundary.
  */
-const KNOWN_STATUSES: ReadonlySet<StatusType> = new Set(STATUS_ORDER);
-
-function isKnownStatus(value: unknown): value is StatusType {
-  return typeof value === 'string' && KNOWN_STATUSES.has(value as StatusType);
-}
 
 /**
  * Compute a deterministic tally of milestone statuses.

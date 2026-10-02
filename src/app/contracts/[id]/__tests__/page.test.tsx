@@ -16,7 +16,8 @@ function installClipboard(): jest.Mock {
     configurable: true,
     value: { writeText },
   });
-  return writeText;}
+  return writeText;
+}
 
 /**
  * Removes navigator.clipboard to simulate an unsupported environment.
@@ -287,6 +288,10 @@ describe('ContractDetailPage', () => {
 
   it('shows error toast when clipboard API is not supported', async () => {
     removeClipboard();
+    // "Not supported" means neither transport exists: no Clipboard API and no
+    // execCommand fallback. jsdom's global execCommand stub reports success,
+    // so it has to be overridden or the fallback would mask the failure.
+    const execCommand = jest.spyOn(document, 'execCommand').mockReturnValue(false);
 
     await renderPage('123');
 
@@ -300,6 +305,14 @@ describe('ContractDetailPage', () => {
     expect(
       screen.getByRole('button', { name: /copy contract id to clipboard/i })
     ).toBeInTheDocument();
+    // And the user is told why nothing happened.
+    expect(
+      await screen.findByText(
+        'Your browser does not support clipboard access. Please copy the ID manually.',
+      ),
+    ).toBeInTheDocument();
+
+    execCommand.mockRestore();
   });
 
   it('handles clipboard write failure gracefully', async () => {
@@ -309,6 +322,10 @@ describe('ContractDetailPage', () => {
       configurable: true,
       value: { writeText: jest.fn().mockRejectedValue(new Error('Permission denied')) },
     });
+    // The hook degrades to document.execCommand when the Clipboard API fails.
+    // Both paths have to fail for "graceful failure" to mean anything, so the
+    // fallback is stubbed to report failure as well.
+    const execCommand = jest.spyOn(document, 'execCommand').mockReturnValue(false);
 
     await renderPage('123');
 
@@ -322,6 +339,10 @@ describe('ContractDetailPage', () => {
     expect(
       screen.getByRole('button', { name: /copy contract id to clipboard/i })
     ).toBeInTheDocument();
+    // No false success: the copied indicator and success toast stay away.
+    expect(screen.queryByLabelText('Contract ID copied')).not.toBeInTheDocument();
+
+    execCommand.mockRestore();
   });
 
   it('applies the release-funds status change optimistically and persists it with the correct version', async () => {

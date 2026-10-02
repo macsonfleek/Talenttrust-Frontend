@@ -7,6 +7,7 @@ import { ContractCreationForm } from '../../components/ContractCreationForm';
 import { listContracts, saveContract } from '@/lib/repository';
 import { downloadContractsCsv, downloadContractsJson } from '@/lib/exportContracts';
 import { useToast } from '@/components/toast/toast-provider';
+import { reportError } from '@/lib/errorReporter';
 import { usePreferences } from '@/lib/preferences';
 import {
   CONTRACT_SORT_OPTIONS,
@@ -16,6 +17,15 @@ import {
   type ContractSortOrder,
 } from '@/lib/sortContracts';
 import type { Contract } from '@/types/domain';
+
+/**
+ * Upper bound on the search query.
+ *
+ * Bounds the filter input so a pathological paste cannot drive an unbounded
+ * scan or an unbounded history entry, and so the rendered query is always the
+ * same value the filter used.
+ */
+const MAX_SEARCH_LENGTH = 200;
 
 type ContractsFetchState =
   | { status: 'loading'; contracts: Contract[] }
@@ -27,8 +37,8 @@ type ContractsFetchState =
  * - `fetchState.contracts` is always a valid array (never undefined).
  * - Contract ids are unique within `fetchState.contracts`; duplicate ids are
  *   rejected before being appended so optimistic updates cannot corrupt state.
- * - Concurrent submissions are serialized via `submittingRef` so two rapid
- *   submits cannot both optimistically append and race on persistence.
+ * - Concurrent submissions are serialized via `submissionInFlightRef` so two
+ *   rapid submits cannot both optimistically append and race on persistence.
  * - On persistence failure the optimistic append is rolled back by id, and
  *   the rollback is idempotent (safe if the id is already absent).
  * - `status: 'error'` always carries an empty contracts array so the error
@@ -47,7 +57,6 @@ const ContractsPage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<ContractSortOrder>(DEFAULT_CONTRACT_SORT_ORDER);
-  const submittingRef = useRef(false);
   const { showError } = useToast();
   const { preferences, updatePreference } = usePreferences();
   const { contracts } = fetchState;
@@ -107,29 +116,69 @@ const ContractsPage: React.FC = () => {
    */
   const handleSubmitContract = useCallback(
     (contract: Contract) => {
-      if (submittingRef.current) return;
-      submittingRef.current = true;
+      // Synchronous in-flight guard. Claimed before any state update so two
+      // submissions landing in the same React batch cannot both pass.
+      if (submissionInFlightRef.current) return;
+      submissionInFlightRef.current = true;
+
+      // Structural validation first: an id or name that is missing (or not a
+      // string) cannot be persisted or matched, so it is rejected before it
+      // reaches the optimistic append.
+      if (
+        !contract ||
+        typeof contract.id !== 'string' ||
+        contract.id.length === 0 ||
+        typeof contract.contractName !== 'string' ||
+        contract.contractName.length === 0
+      ) {
+        submissionInFlightRef.current = false;
+        reportError(
+          new Error('Rejected a contract submission with no usable id or name.'),
+          'ContractsPage.submit',
+          'warn',
+        );
+        showError({
+          title: 'Unable to create contract',
+          description: 'A contract needs an id and a name. Please try again.',
+        });
+        return;
+      }
+
+      // Duplicate rejection against both the rendered list and the
+      // session-level accepted-id set, so a replayed or double-dispatched
+      // submission cannot append the same id twice.
+      const duplicate =
+        contracts.some((item) => item.id === contract.id) ||
+        acceptedIdsRef.current.has(contract.id);
+      if (duplicate) {
+        submissionInFlightRef.current = false;
+        return;
+      }
+
+      acceptedIdsRef.current.add(contract.id);
       setFetchState((current) => ({
         status: 'success',
-        contracts: [...current.contracts, validated],
+        contracts: [...current.contracts, contract],
       }));
       setShowForm(false);
       setSearchQuery('');
 
       const persisted = saveContract(contract);
       if (!persisted) {
+        // Roll back by id. Idempotent: if the id is already absent the filter is
+        // a no-op, so a double rollback cannot corrupt the list.
+        acceptedIdsRef.current.delete(contract.id);
         setFetchState((current) => ({
           status: 'success',
           contracts: current.contracts.filter((item) => item.id !== contract.id),
         }));
-        submittingRef.current = false;
         showError({
           title: "Unable to create contract",
           description: "Your contract could not be saved. Please try again.",
         });
-      } else {
-        submittingRef.current = false;
       }
+
+      submissionInFlightRef.current = false;
     },
     [contracts, showError],
   );

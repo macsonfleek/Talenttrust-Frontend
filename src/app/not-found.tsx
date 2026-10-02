@@ -40,7 +40,7 @@ export const MAX_LINK_DESCRIPTION_LENGTH = 120;
 // and backslashes are never valid in a href we render.
 // eslint-disable-next-line no-control-regex
 const CONTROL_CHAR_RE = /[\u0000-\u001F\u007F]/;
-const DOT_SEGMENT_RE = /(^|\\/)\\.\\.?(\\/|$)/;
+const DOT_SEGMENT_RE = /(^|\/)\.\.?(\/|$)/;
 const MAILTO_RE = /^mailto:[^\s@"]+@[^\s@"]+\.[^\s@."]+$/;
 
 export interface QuickLink {
@@ -293,7 +293,7 @@ export default function NotFound() {
           )}
         </div>
 
-        {quickLinks.length > 0 ? ({
+        {quickLinks.length > 0 ? (
           <nav aria-label="Quick links">
             <h2 className="sr-only">Where would you like to go?</h2>
             <ul className="flex flex-col gap-3">

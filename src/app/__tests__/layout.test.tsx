@@ -2,6 +2,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { axe } from 'jest-axe';
 import RootLayout, { resolveMetadataBase } from '../layout';
+import SafeBoundary from '@/components/SafeBoundary';
+import { setErrorReporter } from '@/lib/errorReporter';
+import { clearCommands } from '@/lib/commands/registry';
 
 // WalletProvider and RouteAnnouncer are already mocked in jest.setup.ts.
 // Mock next/navigation for RouteAnnouncer's usePathname call and
@@ -116,4 +119,85 @@ describe('RootLayout — metadata URL boundaries', () => {
       warning.mockRestore();
     },
   );
+});
+
+// ---------------------------------------------------------------------------
+// Describe: SafeBoundary segment isolation
+//
+// layout.tsx wraps Navbar, HeaderActions and the page children in *independent*
+// boundaries. These tests pin that isolation: a throw inside one segment must
+// surface only that segment's fallback and must never take the header, the other
+// segment, or the <main> landmark down with it.
+// ---------------------------------------------------------------------------
+
+describe('RootLayout — SafeBoundary segment isolation', () => {
+  /** Mirrors layout.tsx: one boundary per segment, all inside <main>/<header>. */
+  const IsolatedLayout = ({ crashSegment }: { crashSegment: 'navbar' | 'actions' | 'children' }) => (
+    <div className="min-h-screen flex flex-col">
+      <header>
+        <span>TalentTrust</span>
+        <SafeBoundary fallbackTitle="Navigation failed to load.">
+          {crashSegment === 'navbar' ? <Bomb /> : <nav aria-label="Primary">Navbar stub</nav>}
+        </SafeBoundary>
+        <SafeBoundary fallbackTitle="Header actions failed to load.">
+          {crashSegment === 'actions' ? <Bomb /> : <div>HeaderActions stub</div>}
+        </SafeBoundary>
+      </header>
+      <main id="main-content" tabIndex={-1}>
+        <SafeBoundary fallbackTitle="This page failed to load.">
+          {crashSegment === 'children' ? <Bomb /> : <div>Page children</div>}
+        </SafeBoundary>
+      </main>
+    </div>
+  );
+
+  it('contains a Navbar crash without disrupting HeaderActions or children', () => {
+    render(<IsolatedLayout crashSegment="navbar" />);
+    expect(screen.getByText('Navigation failed to load.')).toBeInTheDocument();
+    expect(screen.getByText('HeaderActions stub')).toBeInTheDocument();
+    expect(screen.getByText('Page children')).toBeInTheDocument();
+    expect(screen.getByRole('main')).toBeInTheDocument();
+  });
+
+  it('contains a HeaderActions crash without disrupting Navbar or children', () => {
+    render(<IsolatedLayout crashSegment="actions" />);
+    expect(screen.getByText('Header actions failed to load.')).toBeInTheDocument();
+    expect(screen.getByText('Navbar stub')).toBeInTheDocument();
+    expect(screen.getByText('Page children')).toBeInTheDocument();
+    expect(screen.getByRole('main')).toBeInTheDocument();
+  });
+
+  it('contains a children crash without disrupting the header segments', () => {
+    render(<IsolatedLayout crashSegment="children" />);
+    expect(screen.getByText('This page failed to load.')).toBeInTheDocument();
+    expect(screen.getByText('TalentTrust')).toBeInTheDocument();
+    expect(screen.getByText('Navbar stub')).toBeInTheDocument();
+    expect(screen.getByText('HeaderActions stub')).toBeInTheDocument();
+    expect(screen.getByRole('main')).toBeInTheDocument();
+  });
+
+  it('never leaks the thrown error message into the fallback UI', () => {
+    render(<IsolatedLayout crashSegment="children" />);
+    expect(screen.getByText('This page failed to load.')).toBeInTheDocument();
+    expect(screen.queryByText(/deliberate test explosion/i)).not.toBeInTheDocument();
+  });
+
+  it('announces the fallback assertively so screen readers hear it', () => {
+    render(<IsolatedLayout crashSegment="children" />);
+    const alert = screen.getByRole('alert');
+    expect(alert).toBeInTheDocument();
+    expect(alert).toHaveAttribute('aria-live', 'assertive');
+  });
+
+  it('offers a Retry affordance after a crash', () => {
+    render(<IsolatedLayout crashSegment="children" />);
+    expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+  });
+
+  it('reports a contained crash exactly once through the reporter', () => {
+    const reporter = jest.fn();
+    setErrorReporter(reporter);
+    render(<IsolatedLayout crashSegment="children" />);
+    expect(reporter).toHaveBeenCalledTimes(1);
+  });
 });

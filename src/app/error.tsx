@@ -17,9 +17,6 @@ import { reportError } from '../lib/errorReporter';
  * 4. No error message, stack trace, or digest is ever rendered to the DOM.
  */
 
-/** Maximum length of a digest value we consider valid. */
-const MAX_DIGEST_LENGTH = 256;
-
 export interface ErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
@@ -56,7 +53,7 @@ const MAX_RETRIES = 3;
  *   6. No detail leakage — neither the error message nor the stack trace is
  *      rendered in the visible UI.
  */
-export default function GlobalError({ error, reset }: ErrorProps) {
+export function ErrorBoundary({ error, reset }: ErrorProps) {
   /**
    * Tracks how many `reset()` calls have been attempted. Used to cap retries at
    * `MAX_RETRIES` and to decide which recovery UI to present.
@@ -132,39 +129,7 @@ export default function GlobalError({ error, reset }: ErrorProps) {
     }
   };
 
-  const handleReset = useCallback(() => {
-    if (isResetting) {
-      return;
-    }
-
-    if (typeof reset !== 'function') {
-      reportError(
-        new TypeError('Error boundary reset handler is not a function'),
-        'Error Boundary'
-      );
-      return;
-    }
-
-    try {
-      setIsResetting(true);
-      const result: unknown = reset();
-
-      if (typeof (result as Promise<unknown>)?.then === 'function') {
-        (result as Promise<unknown>)
-          .catch((err) => {
-            reportError(err, 'Error Boundary Reset');
-          })
-          .finally(() => {
-            setIsResetting(false);
-          });
-      } else {
-        setIsResetting(false);
-      }
-    } catch (err) {
-      setIsResetting(false);
-      reportError(err, 'Error Boundary Reset');
-    }
-  }, [reset, isResetting]);
+  const retriesExhausted = retryCount >= MAX_RETRIES;
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-8 bg-[var(--background)]">
@@ -202,8 +167,30 @@ export default function GlobalError({ error, reset }: ErrorProps) {
             role="alert"
             className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700"
           >
-            {isResetting ? 'Retrying...' : 'Try Again'}
-          </button>
+            {resetError}
+          </p>
+        )}
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          {retriesExhausted ? (
+            /*
+             * After MAX_RETRIES the "Try Again" button is removed so no further
+             * reset() calls can be made. A hard reload is offered instead.
+             */
+            <button
+              onClick={() => window.location.reload()}
+              className="px-5 py-2 rounded-lg bg-gray-900 text-white font-medium hover:bg-gray-700 transition-colors"
+            >
+              Reload Page
+            </button>
+          ) : (
+            <button
+              onClick={handleRetry}
+              className="px-5 py-2 rounded-lg bg-gray-900 text-white font-medium hover:bg-gray-700 transition-colors"
+            >
+              Try Again
+            </button>
+          )}
           <Link
             href="/"
             className="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
@@ -235,7 +222,11 @@ export default function GlobalError({ error, reset }: ErrorProps) {
   );
 }
 
-// Preserve backwards compatibility for callers expecting `GlobalError` or `ErrorPage`
+/**
+ * Next.js App Router requires a default export for 'use client' route error
+ * boundaries. `ErrorBoundary` is the single implementation; the aliases below
+ * exist only so existing callers keep compiling.
+ */
 export const GlobalError = ErrorBoundary;
 export const ErrorPage = ErrorBoundary;
 export default ErrorBoundary;

@@ -57,7 +57,7 @@ export default function ContractDetail({
     return (
       <div role="alert" data-testid="contract-detail-error">
         <p>{message}</p>
-        {error?.code ? <p data-testid="contract-detail-error-code">Code: {error.code}</p> : null}
+        {error?.kind ? <p data-testid="contract-detail-error-code">Code: {error.kind}</p> : null}
         <button
           type="button"
           onClick={retry}

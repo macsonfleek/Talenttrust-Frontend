@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ToastProvider } from '@/components/toast/toast-provider';
-import { resolveSiteUrl } from '@/lib/siteMetadata';
 
 const DEFAULT_SITE_URL = 'http://localhost:3000';
 
@@ -83,27 +82,48 @@ import Navbar from '@/components/Navbar';
 import HeaderActions from '@/components/HeaderActions';
 import SafeBoundary from '@/components/SafeBoundary';
 import { registerDefaultCommands } from '@/lib/commands/defaultCommands';
+import { getRegisteredCommands } from '@/lib/commands/registry';
 import { reportError } from '@/lib/errorReporter';
 
 /**
- * Guard the module-level command-registration call so that a failure in
- * the registry (e.g. a duplicate-id violation or an unexpected throw) is
- * captured and reported without aborting the server-render of the root
- * layout. The palette will simply start empty, which is recoverable — the
- * page still loads and every other feature continues to function.
- *
- * Invariant: this is the only call site; the commands are registered once
- * at module initialisation time. Concurrent or duplicate calls cannot
- * produce inconsistent state because registerCommand uses a Map (last
- * write wins) and the function is idempotent by id.
+ * Whether the default command set has been installed at least once in this
+ * process. Consulted together with the live registry contents so a consumer
+ * (or a test) that clears the registry between renders is repaired rather than
+ * left with an empty palette.
  */
-try {
-  registerDefaultCommands();
-} catch (err) {
-  reportError(err, 'registerDefaultCommands', 'error', {
-    location: 'layout module initialisation',
-  });
+let defaultCommandsRegistered = false;
+
+/**
+ * Installs the default command palette entries, at most once per process.
+ *
+ * Invariant: safe to call on every render and under concurrent invocation.
+ *  - Idempotent: a populated registry short-circuits, so repeated calls cannot
+ *    produce duplicate or half-registered state (`registerCommand` is keyed by
+ *    id, so even a forced re-registration is last-write-wins).
+ *  - Self-healing: if the registry was emptied after the flag was set, the
+ *    commands are re-installed.
+ *  - Never throws: a registry failure is reported and swallowed so the root
+ *    layout still server-renders. An empty palette is recoverable.
+ */
+function ensureDefaultCommandsRegistered(): void {
+  if (defaultCommandsRegistered && getRegisteredCommands().length > 0) {
+    return;
+  }
+
+  try {
+    registerDefaultCommands();
+    defaultCommandsRegistered = true;
+  } catch (err) {
+    defaultCommandsRegistered = false;
+    reportError(err, 'registerDefaultCommands', 'error', {
+      location: 'layout command registration',
+    });
+  }
 }
+
+// Install once at module initialisation time so the palette is ready on the
+// very first server render, and again per render in case the registry was reset.
+ensureDefaultCommandsRegistered();
 
 export default function RootLayout({
   children,
@@ -118,7 +138,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <PreferencesProvider initialPreferences={undefined}>
+        <PreferencesProvider>
           <ToastProvider>
             <WalletProvider>
               <CommandPaletteProvider>

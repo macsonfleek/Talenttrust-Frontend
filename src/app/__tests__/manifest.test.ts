@@ -27,12 +27,6 @@
  */
 
 import manifest from '../manifest';
-import {
-  DEFAULT_MANIFEST_ICONS,
-  MANIFEST_NAME,
-  getWebAppManifest,
-} from '@/lib/webAppManifest';
-import { setErrorReporter, type ErrorReporter } from '@/lib/errorReporter';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

@@ -62,7 +62,7 @@ export function isDueSoon(dueDateStr: string | undefined, today: Date, windowDay
 
   // Guard against invalid windows so adverse inputs cannot widen or invert the
   // comparison window.
-  if (typeof windowDays !== 'number' || !Number.finite(windowDays) || windowDays < 0) {
+  if (typeof windowDays !== 'number' || !Number.isFinite(windowDays) || windowDays < 0) {
     return false;
   }
 

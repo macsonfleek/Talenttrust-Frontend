@@ -8,9 +8,7 @@ import React, {
   useRef,
   useState,
   Suspense,
-  useSyncExternalStore,
 } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
 import { useSearchParams, useRouter } from 'next/navigation';
 import EmptyState from '../../components/EmptyState';
 import MilestonesList from '../../components/MilestonesList';
@@ -21,6 +19,7 @@ import { MilestoneCreationForm } from '../../components/milestones/MilestoneCrea
 import { listMilestones } from '@/lib/repository';
 import { getItem, setItem } from '@/lib/safeStorage';
 import { useToast } from '@/components/toast/toast-provider';
+import { reportError } from '@/lib/errorReporter';
 import SafeBoundary from '@/components/SafeBoundary';
 import MilestonesErrorBoundary from '@/components/milestones/MilestonesErrorBoundary';
 import MilestonesBoardSkeleton from '@/components/milestones/MilestonesBoardSkeleton';
@@ -33,20 +32,44 @@ import { useMilestonesRecovery } from '@/hooks/useMilestonesRecovery';
 
 const UNPAGINATED_LIST_SIZE = 9999;
 
+/**
+ * Identity of the initial data load for this mount.
+ *
+ * `loadEpochRef` starts on this value, so a reconcile is permitted until the
+ * user dismisses the sample data (which swaps in a new symbol).
+ */
+const MILESTONE_LOAD_EPOCH = Symbol('milestone-load-epoch');
+
 const VALID_STATUSES: MilestoneStatusFilter[] = [
   'All',
   'Pending',
   'Completed',
   'Paid',
   'Disputed',
-  'Cancelled',
 ];
+
+/**
+ * Canonical mapping from a stored milestone status onto a filter value.
+ *
+ * Invariant: total and idempotent. A status the store may hold but the filter
+ * does not expose (e.g. a legacy value) resolves to `'All'` rather than being
+ * dropped, so no milestone can disappear from the board because of a casing or
+ * vocabulary mismatch. The canonical values pass through unchanged.
+ */
+function normalizeMilestoneStatus(status: unknown): MilestoneStatusFilter {
+  if (typeof status !== 'string') return 'All';
+  return (VALID_STATUSES as readonly string[]).includes(status)
+    ? (status as MilestoneStatusFilter)
+    : 'All';
+}
 
 function getUniqueQueryParam(query: string, key: string): string | null {
   const values = new URLSearchParams(query).getAll(key);
   // Repeated keys are ambiguous, so treat them like any other invalid value.
   return values.length === 1 ? values[0] : null;
 }
+
+const MAX_STATUS_PARAM_LENGTH = 32;
 
 function getValidStatus(param: string | null): MilestoneStatusFilter {
   return param && (VALID_STATUSES as string[]).includes(param)
@@ -92,11 +115,6 @@ type UrlSyncAction =
   | { type: 'sort'; value: MilestoneSortOption }
   | { type: 'sync'; value: UrlSyncState };
 
-const INITIAL_URL_SYNC_STATE: UrlSyncState = {
-  status: 'All',
-  sort: 'newest',
-};
-
 /**
  * Invariant: the URL sync state is the single source of truth for the
  * `status` and `sort` query parameters. Transitions are pure and
@@ -140,31 +158,71 @@ function normalizeParam(
   return trimmed;
 }
 
+/**
+ * Reads a single query parameter under one rule: a key that appears more than
+ * once is ambiguous and is therefore rejected.
+ *
+ * Invariant: the decision is made from the full query string when the key is
+ * present there, so `?status=A&status=B` can never silently resolve to one of
+ * them. `params.get()` is consulted only when the key is absent from the query
+ * string entirely, which keeps adapters that implement `get()` but return an
+ * empty `toString()` working without weakening the repeated-key rule.
+ */
+function readQueryParam(params: URLSearchParams, key: string): string | null {
+  const query = typeof params?.toString === 'function' ? params.toString() : '';
+
+  if (new URLSearchParams(query).has(key)) {
+    return getUniqueQueryParam(query, key);
+  }
+
+  // `get()` on a real ReadonlyURLSearchParams always yields a string or null,
+  // but adapters and test doubles may return `undefined`, so the value is
+  // normalized here rather than being trusted.
+  const fallback = typeof params?.get === 'function' ? params.get(key) : null;
+  return typeof fallback === 'string' ? fallback : null;
+}
+
+/**
+ * Parses the canonical `status` / `sort` pair out of the current query.
+ *
+ * Pure and total: the same query object always yields the same state, so a
+ * concurrent render cannot observe two different parses of one URL.
+ */
 function parseUrlSyncState(params: URLSearchParams): UrlSyncState {
   const statusParam = normalizeParam(
-    params.get('status'),
+    readQueryParam(params, CANONICAL_STATUS_PARAM),
     MAX_STATUS_PARAM_LENGTH,
   );
-  const sortParam = normalizeParam(params.get('sort'), MAX_SORT_PARAM_LENGTH);
+  const sortParam = normalizeParam(
+    readQueryParam(params, CANONICAL_SORT_PARAM),
+    MAX_SORT_PARAM_LENGTH,
+  );
   return {
     status: getValidStatus(statusParam),
     sort: getValidSortOption(sortParam),
   };
 }
 
-function buildUrlSyncQuery(state: UrlSyncState): string {
-  const params = new URLSearchParams();
+/**
+ * Builds the canonical query string for `state`, preserving every parameter
+ * this route does not own.
+ *
+ * Invariant: the result is a function of `(state, query)` alone. Ownership of
+ * `status` / `sort` is exclusive to this route — they are deleted before being
+ * re-set, so a user-supplied duplicate can never survive the normalization and
+ * leave the URL disagreeing with the rendered state.
+ */
+function buildUrlSyncQuery(state: UrlSyncState, query: string): string {
+  const params = new URLSearchParams(query);
+  params.delete(CANONICAL_STATUS_PARAM);
+  params.delete(CANONICAL_SORT_PARAM);
   if (state.status !== 'All') {
-    params.set('status', state.status);
+    params.set(CANONICAL_STATUS_PARAM, state.status);
   }
   if (state.sort !== 'newest') {
-    params.set('sort', state.sort);
+    params.set(CANONICAL_SORT_PARAM, state.sort);
   }
   return params.toString();
-}
-
-function urlSyncStatesEqual(a: UrlSyncState, b: UrlSyncState): boolean {
-  return a.status === b.status && a.sort === b.sort;
 }
 
 
@@ -182,17 +240,36 @@ const MilestonesContent: React.FC = () => {
   // cannot interleave and produce a non-deterministic final state.
   const recoveryInFlightRef = useRef<boolean>(false);
 
-  const initialQuery = searchParams.toString();
-  const initialStatus = getValidStatus(getUniqueQueryParam(initialQuery, 'status'));
-  const [statusFilter, setStatusFilter] =
-    useState<MilestoneStatusFilter>(initialStatus);
-  const [sortOrder, setSortOrder] = useState<MilestoneSortOption>(
-    getValidSortOption(getUniqueQueryParam(initialQuery, 'sort')),
+  /**
+   * Token identifying the current mount's data load.
+   *
+   * Invariant: it holds a fresh `Symbol` for the lifetime of a mount and is only
+   * replaced deliberately. Reconciling from the repository is refused once the
+   * token has moved on, so a recovery attempt issued before the user dismissed
+   * the sample data cannot repopulate a list they deliberately cleared.
+   */
+  const loadEpochRef = useRef<typeof MILESTONE_LOAD_EPOCH>(MILESTONE_LOAD_EPOCH);
+
+  /**
+   * True while mounted; guards the deferred focus handoff so a timeout that fires
+   * after unmount (or after a navigation) cannot focus a detached node.
+   */
+  const mountedRef = useRef<boolean>(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const [urlSyncState, dispatchUrlSync] = useReducer(
+    urlSyncReducer,
+    parseUrlSyncState(searchParams),
   );
   const { status: statusFilter, sort: sortOrder } = urlSyncState;
   const [showForm, setShowForm] = useState(false);
   const { showError } = useToast();
-  const repositoryMilestones = useRepositoryMilestones();
   const reconcileFromRepo = useCallback(() => {
     if (loadEpochRef.current !== MILESTONE_LOAD_EPOCH) return;
     setMilestones(listMilestones());
@@ -211,16 +288,16 @@ const MilestonesContent: React.FC = () => {
   const recoverFromFailure = useCallback(
     (operation: string, error: unknown): boolean => {
       if (recoveryInFlightRef.current) {
-        reportMilestoneFailure(operation, 'recovery_skipped_in_flight', error);
+        reportError(error, 'milestones.recovery', 'warn', { operation, outcome: 'recovery_skipped_in_flight' });
         return false;
       }
       recoveryInFlightRef.current = true;
       try {
         reconcileFromRepo();
-        reportMilestoneFailure(operation, 'recovered', error);
+        reportError(error, 'milestones.recovery', 'warn', { operation, outcome: 'recovered' });
         return true;
       } catch (recoveryError) {
-        reportMilestoneFailure(operation, 'recovery_failed', recoveryError);
+        reportError(recoveryError, 'milestones.recovery', 'error', { operation, outcome: 'recovery_failed' });
         return false;
       } finally {
         recoveryInFlightRef.current = false;
@@ -257,36 +334,39 @@ const MilestonesContent: React.FC = () => {
     milestoneIdsRef.current = new Set(milestones.map(({ id }) => id));
   }, [milestones]);
 
+  // Adopt external navigation (back/forward, a shared deep link) into the
+  // reducer. The reducer returns the identical object when nothing changed, so
+  // this cannot loop against the write effect below.
   useEffect(() => {
-    const query = searchParams.toString();
-    setStatusFilter(getValidStatus(getUniqueQueryParam(query, 'status')));
-    setSortOrder(getValidSortOption(getUniqueQueryParam(query, 'sort')));
+    dispatchUrlSync({ type: 'sync', value: parseUrlSyncState(searchParams) });
   }, [searchParams]);
 
+  // Write state back to the URL, debounced so a burst of filter clicks produces
+  // exactly one history entry. The comparison is on the canonical query string
+  // (not on parsed state) so a non-canonical URL — unknown value, repeated key,
+  // stale sort — is always normalized even when it happens to parse to the
+  // current state.
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      const current = parseUrlSyncState(searchParams);
-      if (urlSyncStatesEqual(current, urlSyncState)) {
+      const currentQuery = searchParams.toString();
+      const canonicalQuery = buildUrlSyncQuery(urlSyncState, currentQuery);
+      if (canonicalQuery === currentQuery) {
         return;
       }
 
-      const query = buildUrlSyncQuery(urlSyncState);
-      const nextHref = query ? `?${query}` : '?';
-      const currentHref = searchParams.toString()
-        ? `?${searchParams.toString()}`
-        : '?';
-      if (nextHref === currentHref) {
-        return;
-      }
-
-      router.replace(nextHref);
+      router.replace(canonicalQuery ? `?${canonicalQuery}` : '?');
     }, 150);
 
     return () => window.clearTimeout(timeoutId);
   }, [urlSyncState, router, searchParams]);
 
+  // Initial load for this mount, and again on every `recoveryKey` bump (a retry
+  // or reset from the recovery banner).
+  //
+  // Invariant: this effect only *reads* the repository. \`reconcileFromRepo\` is
+  // the only writer that honours the load epoch, so the sample-dismissal epoch
+  // can never be undone by a load racing the click.
   useEffect(() => {
-    const epoch = loadEpochRef.current;
     const persisted = listMilestones();
     if (persisted.length > 0) {
       setMilestones(persisted);
@@ -299,7 +379,12 @@ const MilestonesContent: React.FC = () => {
       } catch {
         setIsDismissed(true);
       }
-      setMilestones(SAMPLE_MILESTONES.map((m) => ({ ...m })));
+      // The sample set is kept by reference, not copied. \`isUsingSampleData\` is
+      // an identity check against the module constant, so copying here would make
+      // the sample banner unreachable and permanently hide the "start from
+      // scratch" escape hatch. Every mutation path replaces the array rather than
+      // editing it in place, so the constant is never mutated.
+      setMilestones(SAMPLE_MILESTONES);
     }
   }, [recoveryKey]);
 
@@ -309,7 +394,7 @@ const MilestonesContent: React.FC = () => {
     } catch {
       // safeStorage resilience
     }
-    loadEpochRef.current = Symbol('milestone-load-epoch-dismissed');
+    loadEpochRef.current = Symbol('milestone-load-epoch-dismissed') as typeof MILESTONE_LOAD_EPOCH;
     setIsDismissed(true);
     setMilestones([]);
     lastReconciledRef.current = [];
@@ -365,10 +450,6 @@ const MilestonesContent: React.FC = () => {
     return nextMilestones;
   }, [filtered, sortOrder]);
 
-  const isUsingSampleData = milestones === SAMPLE_MILESTONES;
-  const showSampleBanner = isUsingSampleData && !isDismissed;
-  const displayMilestones = isUsingSampleData && isDismissed ? [] : milestones;
-
   const handleAddMilestone = useCallback(() => {
     setShowForm(true);
   }, []);
@@ -389,20 +470,16 @@ const MilestonesContent: React.FC = () => {
       return;
     }
 
+    // Reserve the id before touching the repository. Two submits inside one React
+    // batch both see an id that is not yet on screen, so the reservation is
+    // what makes "persist once" deterministic.
     milestoneIdsRef.current.add(milestone.id);
-    const result = optimisticCreate(milestone);
-    if (!result.ok) {
-      milestoneIdsRef.current.delete(milestone.id);
-      showError({
-        title: 'Unable to create milestone',
-        description: result.error,
-      });
-      return;
-    }
-    setShowForm(false);
 
     const result = optimisticCreate(milestone);
     if (!result.ok) {
+      // Release the reservation so a retry is not permanently blocked.
+      milestoneIdsRef.current.delete(milestone.id);
+      recoverFromFailure('create', result.error);
       showError({
         title: 'Unable to create milestone',
         description: result.stale
@@ -416,8 +493,9 @@ const MilestonesContent: React.FC = () => {
       return;
     }
 
+    setShowForm(false);
     setIsDismissed(true);
-  }, [optimisticCreate, showError]);
+  }, [optimisticCreate, recoverFromFailure, showError]);
 
   const handleCancelForm = useCallback(() => {
     setShowForm(false);
@@ -427,6 +505,7 @@ const MilestonesContent: React.FC = () => {
     (id: string, patch: Partial<Milestone>): boolean => {
       const result = optimisticUpdate(id, patch);
       if (!result.ok) {
+        recoverFromFailure('update', result.error);
         showError({
           title: 'Unable to update milestone',
           description: result.stale
@@ -440,16 +519,6 @@ const MilestonesContent: React.FC = () => {
         return false;
       }
       return true;
-      if (result.ok) return true;
-      recovery.recordFailure('update', result.error);
-      showError({
-        title: 'Unable to update milestone',
-        description: result.error,
-      });
-      return false;
-      } finally {
-        releaseMutationLock(id);
-      }
     },
     [optimisticUpdate, recoverFromFailure, showError],
   );

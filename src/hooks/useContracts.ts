@@ -49,7 +49,15 @@ function toError(err: unknown, id: string): ContractStateError {
  */
 export function useContracts(utils: UseContractsOptions = {}): UseContractsResult {
   const [state, dispatch] = useReducer(contractsReducer, initialContractsState);
-  const locks = useRef('' as Record<string, Promise<void>>);
+  /**
+   * Per-id serialization chains for `transition`.
+   *
+   * Invariant: the entry for an id is always a promise that never rejects
+   * (`run.catch(...)` below), so a failed mutation cannot poison the chain and
+   * wedge every later transition for that id. A new id costs one entry; the map
+   * is keyed by contract id so two different contracts never block each other.
+   */
+  const locks = useRef<Record<string, Promise<void>>>({});
   const revisionCounter = useRef(0);
   const now = utils.now ?? (() => Date.now());
 

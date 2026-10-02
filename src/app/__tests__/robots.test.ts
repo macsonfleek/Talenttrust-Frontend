@@ -30,7 +30,12 @@ describe('robots.ts', () => {
     process.env.NEXT_PUBLIC_SITE_URL = '   ';
 
     expect(robots().sitemap).toBe('http://localhost:3000/sitemap.xml');
-    expect(warning).not.toHaveBeenCalled();
+    // A blank-but-present variable is a misconfiguration and is reported. The
+    // enumerated cases below ("invalid configuration and failure recovery")
+    // already require that, so the earlier expectation of silence here
+    // contradicted them.
+    expect(warning).toHaveBeenCalled();
+    expect(warning.mock.calls.flat().join(' ')).toContain('empty');
   });
 
   it('should use provided NEXT_PUBLIC_SITE_URL when set', () => {

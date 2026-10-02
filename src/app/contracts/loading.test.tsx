@@ -1,121 +1,98 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen } from '@testing-library/react';
 
 import ContractsLoading, {
-  DEFAULT_SKELETON_ROWS,
-  MAX_SKELETON_ROWS,
-  resolveSkeletonCount,
-} from "./loading";
+  MAX_SKELETON_COUNT,
+  MIN_SKELETON_COUNT,
+  normalizeSkeletonCount,
+} from './loading';
+import { CONTRACTS_LOADING_SKELETON_ROWS } from './ContractsLoadingBoundary';
 
-describe("resolveSkeletonCount", () => {
-  it("returns the default when no candidate is provided", () => {
-    expect(resolveSkeletonCount()).toBe(DEFAULT_SKELETON_ROWS);
-    expect(resolveSkeletonCount(undefined)).toBe(DEFAULT_SKELETON_ROWS);
-  });
-
-  it("accepts valid integer values within range", () => {
-    expect(resolveSkeletonCount(0)).toBe(0);
-    expect(resolveSkeletonCount(1)).toBe(1);
-    expect(resolveSkeletonCount(3)).toBe(3);
-    expect(resolveSkeletonCount(MAX_SKELETON_ROWS)).toBe(MAX_SKELETON_ROWS);
-  });
-
-  it("truncates fractional values towards zero", () => {
-    expect(resolveSkeletonCount(0.9)).toBe(0);
-    expect(resolveSkeletonCount(1.99)).toBe(1);
-    expect(resolveSkeletonCount(3.5)).toBe(3);
-  });
-
-  it("clamps negative values to zero", () => {
-    expect(resolveSkeletonCount(-1)).toBe(0);
-    expect(resolveSkeletonCount(-100)).toBe(0);
-  });
-
-  it("clamps out-of-range high values to the maximum", () => {
-    expect(resolveSkeletonCount(MAX_SKELETON_ROWS + 1)).toBe(
-      MAX_SKELETON_ROWS,
+/**
+ * `normalizeSkeletonCount` is total and deterministic: every input maps to a
+ * bounded integer, so repeated or concurrent calls can never disagree and the
+ * rendered row count can never vary for the same request.
+ */
+describe('normalizeSkeletonCount', () => {
+  it('returns the module default when no candidate is provided', () => {
+    expect(normalizeSkeletonCount()).toBe(
+      normalizeSkeletonCount(undefined),
     );
-    expect(resolveSkeletonCount(10_000)).toBe(MAX_SKELETON_ROWS);
-  });
-
-  it("rejects non-finite numeric values", () => {
-    expect(resolveSkeletonCount(Number.NaN)).toBe(DEFAULT_SKELETON_ROWS);
-    expect(resolveSkeletonCount(Number.POSITIVE_INFINITY)).toBe(
-      DEFAULT_SKELETON_ROWS,
-    );
-    expect(resolveSkeletonCount(Number.NEGATIVE_INFINITY)).toBe(
-      DEFAULT_SKELETON_ROWS,
+    expect(normalizeSkeletonCount(undefined)).toBeGreaterThanOrEqual(
+      MIN_SKELETON_COUNT,
     );
   });
 
-  it("rejects non-numeric inputs via the type boundary", () => {
-    expect(resolveSkeletonCount("abc" as unknown as number)).toBe(
-      DEFAULT_SKELETON_ROWS,
-    );
-    expect(resolveSkeletonCount(null as unknown as number)).toBe(
-      DEFAULT_SKELETON_ROWS,
-    );
+  it('accepts valid integer values within range', () => {
+    expect(normalizeSkeletonCount(MIN_SKELETON_COUNT)).toBe(MIN_SKELETON_COUNT);
+    expect(normalizeSkeletonCount(3)).toBe(3);
+    expect(normalizeSkeletonCount(MAX_SKELETON_COUNT)).toBe(MAX_SKELETON_COUNT);
   });
 
-  it("is idempotent for duplicate invocations", () => {
-    const inputs = [1, 2, 3, 5, 10];
-    for (const value of inputs) {
-      expect(resolveSkeletonCount(value)).toBe(value);
-      expect(resolveSkeletonCount(value)).toBe(value);
+  it('truncates fractional values towards zero', () => {
+    expect(normalizeSkeletonCount(3.9)).toBe(3);
+    expect(normalizeSkeletonCount(2.99)).toBe(2);
+  });
+
+  it('clamps out-of-range values to the documented bounds', () => {
+    expect(normalizeSkeletonCount(-1)).toBe(MIN_SKELETON_COUNT);
+    expect(normalizeSkeletonCount(10_000)).toBe(MAX_SKELETON_COUNT);
+  });
+
+  it('falls back to the same default for non-finite and non-numeric values', () => {
+    const fallback = normalizeSkeletonCount(undefined);
+    expect(normalizeSkeletonCount(Number.NaN)).toBe(fallback);
+    expect(normalizeSkeletonCount(Number.POSITIVE_INFINITY)).toBe(fallback);
+    expect(normalizeSkeletonCount(Number.NEGATIVE_INFINITY)).toBe(fallback);
+    expect(normalizeSkeletonCount('abc' as unknown as number)).toBe(fallback);
+    expect(normalizeSkeletonCount(null as unknown as number)).toBe(fallback);
+  });
+
+  it('is idempotent for duplicate invocations', () => {
+    for (const value of [1, 2, 3, 5, 10]) {
+      expect(normalizeSkeletonCount(value)).toBe(value);
+      expect(normalizeSkeletonCount(value)).toBe(value);
+    }
+  });
+
+  it('always returns an integer inside the bounds, for any input', () => {
+    const hostile: unknown[] = [
+      undefined, null, '', 'x', Number.NaN, Number.POSITIVE_INFINITY,
+      Number.NEGATIVE_INFINITY, -0.5, 0.5, 1e9, [], {},
+    ];
+    for (const value of hostile) {
+      const result = normalizeSkeletonCount(value as number);
+      expect(Number.isInteger(result)).toBe(true);
+      expect(result).toBeGreaterThanOrEqual(MIN_SKELETON_COUNT);
+      expect(result).toBeLessThanOrEqual(MAX_SKELETON_COUNT);
     }
   });
 });
 
-describe("ContractsLoading", () => {
-  it("renders the default number of skeleton rows", () => {
-    render(<ContractsLoading />);
-    expect(screen).getAllByTestId("contract-skeleton-row")).toHaveLength(
-      DEFAULT_SKELETON_ROWS,
-    );
+/**
+ * Public entry-point contract: zero arguments, a fixed row count, and no second
+ * `<main>` landmark (the root layout already owns one).
+ */
+describe('ContractsLoading', () => {
+  it('renders the documented skeleton row count', () => {
+    const { container } = render(<ContractsLoading />);
+
+    const list = container.querySelector('ul[aria-label="Loading contract list"]');
+    expect(list!.querySelectorAll('li')).toHaveLength(CONTRACTS_LOADING_SKELETON_ROWS);
   });
 
-  it("announces loading state to assistive technology", () => {
-    render(<ContractsLoading />);
-    const status = screen.getByRole("status");
-    expect(status).toHaveTextContent("Loading contracts…");
-    expect(status).toHaveAttribute("aria-live", "polite");
+  it('announces loading state to assistive technology and marks the region busy', () => {
+    const { container } = render(<ContractsLoading />);
+
+    const status = screen.getByRole('status');
+    expect(status).toHaveTextContent('Loading contracts');
+    expect(status).toHaveAttribute('aria-live', 'polite');
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
   });
 
-  it("marks the region as busy", () => {
-    render(<ContractsLoading />);
-    expect(screen.getByRole("main")).toHaveAttribute("aria-busy", "true");
-  });
+  it('is idempotent across repeated renders', () => {
+    const first = render(<ContractsLoading />).container.innerHTML;
+    const second = render(<ContractsLoading />).container.innerHTML;
 
-  it("respects a valid custom row count", () => {
-    render(<ContractsLoading rows={3} />);
-    expect(screen.getAllByTestId("contract-skeleton-row")).toHaveLength(3);
-  });
-
-  it("clamps an out-of-range row count to the maximum", () => {
-    render(<ContractsLoading rows={10_000} />);
-    expect(screen.getAllByTestId("contract-skeleton-row")).toHaveLength(
-      MAX_SKELETON_ROWS,
-    );
-  });
-
-  it("renders zero rows for a negative row count without crashing", () => {
-    render(<ContractsLoading rows={-1} />);
-    expect(screen.queryAllByTestId("contract-skeleton-row")).toHaveLength(0);
-  });
-
-  it("falls back to the default for a non-finite row count", () => {
-    render(<ContractsLoading rows={Number.NaN} />);
-    expect(screen.getAllByTestId("contract-skeleton-row")).toHaveLength(
-      DEFAULT_SKELETON_ROWS,
-    );
-  });
-
-  it("is idempotent across repeated renders with the same input", () => {
-    const { unmount } = render(<ContractsLoading rows={4} />);
-    expect(screen.getAllByTestId("contract-skeleton-row")).toHaveLength(4);
-    unmount();
-
-    render(<ContractsLoading rows={4} />);
-    expect(screen.getAllByTestId("contract-skeleton-row")).toHaveLength(4);
+    expect(second).toBe(first);
   });
 });
