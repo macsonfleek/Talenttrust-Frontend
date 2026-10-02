@@ -15,27 +15,12 @@ export type ReputationPageClientProps = {
   focusSelector?: string;
   /**
    * Optional delay (in ms) before focusing the main content. Defaults to 100.
-   *"​
    */
   focusDelayMs?: number;
 };
 
 export const DEFAULT_FOCUS_SELECTOR = 'main';
 export const DEFAULT_FOCUS_DELAY_MS = 100;
-
-function isFocusable(el: HTMLElement | null): el is HTMLElement {
-  if (!el) return false;
-  if (el.hasAttribute('tabindex')) return true;
-  const tag = el.tagName.toLowerCase();
-  return (
-    tag === 'a' ||
-    tag === 'button' ||
-    tag === 'input' ||
-    tag === 'select' ||
-    tag === 'textarea' ||
-    tag === 'iframe'
-  );
-}
 
 /**
  * Delay before each focus attempt, giving the route time to settle before the
@@ -152,8 +137,6 @@ export default function ReputationPageClient({
 }: ReputationPageClientProps) {
   const mainRef = useRef<HTMLElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
-  const focusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const focusRequestIdRef = useRef(0);
 
   useEffect(() => {
     // Store the previously focused element when the page mounts. Focus

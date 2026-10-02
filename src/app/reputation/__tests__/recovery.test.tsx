@@ -22,6 +22,12 @@ jest.mock('@/components/ReputationProfile', () => {
   const React = require('react');
   return {
     __esModule: true,
+    // The module also exports the pure band resolver that shapes the page's
+    // dataset. Stubbing only `default` would leave it undefined in the content
+    // module and fail the shape step for a reason unrelated to these tests, so
+    // the mock mirrors the module's real public surface.
+    resolveReputationLevel: (score: number) =>
+      score >= 4 ? 'Excellent' : score >= 2 ? 'Good' : 'New',
     default: ({ history = [] }: { history?: ReputationEvent[] }) => {
       const [draft, setDraft] = React.useState('');
       if (mockProfileFailure) throw new Error('Simulated profile rendering failure');

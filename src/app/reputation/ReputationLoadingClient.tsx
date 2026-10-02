@@ -115,51 +115,363 @@ export interface ReputationLoadingClientState {
  * Normalizes any caught or passed value into an Error instance.
  * Ensures non-Error throws (strings, objects, null, undefined) produce a safe Error.
  */
-export default function ReputationLoadingClient() {
-  const mainRef = useRef<HTMLElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
-  const focusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const focusRequestIdRef = useRef(0);
+export function normalizeError(error: unknown): Error {
+  if (error instanceof Error) {
+    return error;
+  }
+  if (typeof error === 'string') {
+    return new Error(error);
+  }
+  if (error && typeof error === 'object') {
+    const maybeMessage = (error as { message?: unknown }).message;
+    if (typeof maybeMessage === 'string') {
+      return new Error(maybeMessage);
+    }
+    try {
+      return new Error(JSON.stringify(error));
+    } catch {
+      return new Error('Unknown error object');
+    }
+  }
+  return new Error(String(error ?? 'Unknown error occurred'));
+}
 
-  useEffect(() => {
-    // Store the previously focused element when the page mounts. This value is
-    // intentionally kept as a ref so a stale timer cannot race with a later
-    // mount or re-render and restore focus to the wrong target.
-    previousFocusRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
+/**
+ * Normalizes maxRetries to a non-negative integer.
+ * Falls back to DEFAULT_MAX_RETRIES for invalid inputs (negative, NaN, non-finite).
+ */
+export function normalizeMaxRetries(value: unknown): number {
+  if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+    return Math.floor(value);
+  }
+  return DEFAULT_MAX_RETRIES;
+}
 
-    // Only the latest focus request is allowed to complete. Repeated renders or
-    // React StrictMode double-invocation can schedule multiple timers; each new
-    // request invalidates any stale timeout before it can steal focus from the
-    // current page state.
-    const requestId = ++focusRequestIdRef.current;
+/**
+ * Normalizes timeoutMs to a positive number, or null if disabled/invalid.
+ */
+export function normalizeTimeoutMs(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+    return value;
+  }
+  return null;
+}
 
-    if (focusTimerRef.current !== null) {
-      clearTimeout(focusTimerRef.current);
-      focusTimerRef.current = null;
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
+/**
+ * Client wrapper for the reputation loading state that manages focus and deterministic
+ * failure recovery.
+ *
+ * State Model:
+ *   - 'loading'    : Initial active skeleton state. Timer schedules focus to `<main>`,
+ *                    `aria-busy="true"`.
+ *   - 'error'      : An error occurred (render throw, timeout, or retry rejection).
+ *                    Renders accessible alert with Retry action, `aria-busy="false"`,
+ *                    moves focus to the retry button.
+ *   - 'recovering' : A retry action is currently executing. Concurrent clicks are ignored.
+ *                    `aria-busy="true"`.
+ *   - 'exhausted'  : Maximum retry attempts reached. Retry button is disabled/hidden,
+ *                    guidance to return home is provided.
+ *
+ * Invariants:
+ *   1. Deterministic transitions: 'recovering' can only transition to 'loading' (success)
+ *      or 'error'/'exhausted' (failure).
+ *   2. No silent data loss: Errors are routed to central error reporting without leaking
+ *      credentials, memory contents, or internal stack traces to the DOM.
+ *   3. Concurrency protection: `isRetrying` guards against duplicate/rapid invocations.
+ *   4. Subtree reset: Fresh `retryKey` remounts the child subtree cleanly on recovery.
+ *   5. Timer safety: All focus and timeout timers are cancelled on state transitions and unmount.
+ */
+export default class ReputationLoadingClient extends Component<
+  ReputationLoadingClientProps,
+  ReputationLoadingClientState
+> {
+  private mainRef = React.createRef<HTMLElement>();
+  private retryButtonRef = React.createRef<HTMLButtonElement>();
+  private alertRef = React.createRef<HTMLDivElement>();
+  private previousFocus: HTMLElement | null = null;
+  private focusTimer: ReturnType<typeof setTimeout> | null = null;
+  private timeoutTimer: ReturnType<typeof setTimeout> | null = null;
+  private isMountedFlag = false;
+  private isRetryingLock = false;
+
+  constructor(props: ReputationLoadingClientProps) {
+    super(props);
+
+    const initialErr = props.initialError != null ? normalizeError(props.initialError) : null;
+    const maxRetries = normalizeMaxRetries(props.maxRetries);
+    const isExhausted = initialErr !== null && maxRetries === 0;
+
+    this.state = {
+      status: initialErr !== null ? (isExhausted ? 'exhausted' : 'error') : 'loading',
+      error: initialErr,
+      retryCount: 0,
+      retryKey: 0,
+      isRetrying: false,
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Lifecycle & Error Boundaries
+  // ---------------------------------------------------------------------------
+
+  static getDerivedStateFromError(error: unknown): Partial<ReputationLoadingClientState> {
+    return {
+      status: 'error',
+      error: normalizeError(error),
+      isRetrying: false,
+    };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    const normalized = normalizeError(error);
+    const maxRetries = normalizeMaxRetries(this.props.maxRetries);
+    const isExhausted = this.state.retryCount >= maxRetries;
+
+    if (isExhausted && this.state.status !== 'exhausted') {
+      this.setState({ status: 'exhausted' });
     }
 
-    focusTimerRef.current = setTimeout(() => {
-      if (requestId !== focusRequestIdRef.current) {
-        return;
-      }
+    reportError(normalized, 'ReputationLoadingClient', 'error', {
+      code: REPUTATION_LOADING_ERROR_CODE,
+      retryCount: this.state.retryCount,
+      maxRetries,
+      componentStack: errorInfo.componentStack ?? undefined,
+    });
 
-      const main = document.querySelector('main') || mainRef.current;
-      if (main && document.activeElement !== main) {
+    try {
+      this.props.onError?.(normalized, errorInfo);
+    } catch {
+      // Invariant: errors in onError callback must not break the error boundary
+    }
+
+    this.clearFocusTimer();
+    this.clearTimeoutTimer();
+    this.focusAlertOrRetry();
+  }
+
+  componentDidMount(): void {
+    this.isMountedFlag = true;
+
+    // Store the previously focused element when the page mounts
+    this.previousFocus =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+    if (this.state.status === 'loading') {
+      this.scheduleMountFocus();
+      this.startTimeoutTimer();
+    } else {
+      this.focusAlertOrRetry();
+    }
+  }
+
+  componentDidUpdate(prevProps: ReputationLoadingClientProps): void {
+    // If initialError prop changes after mount, handle it deterministically
+    if (this.props.initialError !== prevProps.initialError && this.props.initialError != null) {
+      const normalized = normalizeError(this.props.initialError);
+      const maxRetries = normalizeMaxRetries(this.props.maxRetries);
+      const isExhausted = this.state.retryCount >= maxRetries;
+
+      this.clearFocusTimer();
+      this.clearTimeoutTimer();
+
+      this.setState(
+        {
+          status: isExhausted ? 'exhausted' : 'error',
+          error: normalized,
+          isRetrying: false,
+        },
+        () => {
+          this.focusAlertOrRetry();
+        }
+      );
+    }
+  }
+
+  componentWillUnmount(): void {
+    this.isMountedFlag = false;
+    this.clearFocusTimer();
+    this.clearTimeoutTimer();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Timer & Focus Management
+  // ---------------------------------------------------------------------------
+
+  private clearFocusTimer(): void {
+    if (this.focusTimer !== null) {
+      clearTimeout(this.focusTimer);
+      this.focusTimer = null;
+    }
+  }
+
+  private clearTimeoutTimer(): void {
+    if (this.timeoutTimer !== null) {
+      clearTimeout(this.timeoutTimer);
+      this.timeoutTimer = null;
+    }
+  }
+
+  private scheduleMountFocus(): void {
+    this.clearFocusTimer();
+    this.focusTimer = setTimeout(() => {
+      // Compatibility: querySelector('main') is queried first to preserve
+      // existing accessibility and unit test contracts
+      const main = document.querySelector('main') || this.mainRef.current;
+      if (main) {
         main.focus();
       }
-
-      focusTimerRef.current = null;
     }, 100);
   }
 
-    return () => {
-      if (focusTimerRef.current !== null) {
-        clearTimeout(focusTimerRef.current);
-        focusTimerRef.current = null;
+  private focusAlertOrRetry(): void {
+    this.clearFocusTimer();
+    this.focusTimer = setTimeout(() => {
+      const maxRetries = normalizeMaxRetries(this.props.maxRetries);
+      const isExhausted =
+        this.state.status === 'exhausted' || this.state.retryCount >= maxRetries;
+
+      if (!isExhausted && this.retryButtonRef.current) {
+        this.retryButtonRef.current.focus();
+      } else if (this.alertRef.current) {
+        this.alertRef.current.focus();
       }
-      // Note: Focus restoration is handled by RouteAnnouncer on navigation away.
+    }, 50);
+  }
+
+  private startTimeoutTimer(): void {
+    this.clearTimeoutTimer();
+    const timeout = normalizeTimeoutMs(this.props.timeoutMs);
+    if (timeout !== null && this.state.status === 'loading') {
+      this.timeoutTimer = setTimeout(() => {
+        this.handleTimeout();
+      }, timeout);
+    }
+  }
+
+  private handleTimeout(): void {
+    if (!this.isMountedFlag || this.state.status !== 'loading') {
+      return;
+    }
+
+    const timeoutErr = new Error('Reputation loading timed out');
+    const maxRetries = normalizeMaxRetries(this.props.maxRetries);
+    const isExhausted = this.state.retryCount >= maxRetries;
+
+    reportError(timeoutErr, 'ReputationLoadingClient', 'warn', {
+      code: REPUTATION_LOADING_TIMEOUT_CODE,
+      timeoutMs: this.props.timeoutMs,
+      retryCount: this.state.retryCount,
+      maxRetries,
+    });
+
+    try {
+      this.props.onError?.(timeoutErr);
+    } catch {
+      // Invariant: callback errors must not block error state transition
+    }
+
+    this.clearFocusTimer();
+    this.setState(
+      {
+        status: isExhausted ? 'exhausted' : 'error',
+        error: timeoutErr,
+        isRetrying: false,
+      },
+      () => {
+        this.focusAlertOrRetry();
+      }
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Retry & Recovery Handler
+  // ---------------------------------------------------------------------------
+
+  handleRetry = (): void => {
+    const maxRetries = normalizeMaxRetries(this.props.maxRetries);
+    if (
+      !this.isMountedFlag ||
+      this.isRetryingLock ||
+      this.state.isRetrying ||
+      this.state.status === 'exhausted' ||
+      this.state.retryCount >= maxRetries
+    ) {
+      return;
+    }
+
+    this.isRetryingLock = true;
+    this.clearFocusTimer();
+    this.clearTimeoutTimer();
+
+    this.setState({ status: 'recovering', isRetrying: true });
+
+    const execute = async () => {
+      try {
+        if (typeof this.props.onRetry === 'function') {
+          await this.props.onRetry();
+        }
+
+        if (!this.isMountedFlag) {
+          this.isRetryingLock = false;
+          return;
+        }
+
+        const nextRetryCount = this.state.retryCount + 1;
+        this.isRetryingLock = false;
+        this.setState(
+          (prev) => ({
+            status: 'loading',
+            error: null,
+            retryCount: nextRetryCount,
+            retryKey: prev.retryKey + 1,
+            isRetrying: false,
+          }),
+          () => {
+            try {
+              this.props.onRecover?.();
+            } catch {
+              // Invariant: callback errors must not corrupt recovery state
+            }
+            this.startTimeoutTimer();
+            this.scheduleMountFocus();
+          }
+        );
+      } catch (err) {
+        this.isRetryingLock = false;
+        if (!this.isMountedFlag) return;
+
+        const normalized = normalizeError(err);
+        const nextRetryCount = this.state.retryCount + 1;
+        const isExhausted = nextRetryCount >= maxRetries;
+
+        reportError(normalized, 'ReputationLoadingClient', 'error', {
+          code: REPUTATION_LOADING_RETRY_FAILED_CODE,
+          retryCount: nextRetryCount,
+          maxRetries,
+        });
+
+        try {
+          this.props.onError?.(normalized);
+        } catch {
+          // protect boundary
+        }
+
+        this.setState(
+          {
+            status: isExhausted ? 'exhausted' : 'error',
+            error: normalized,
+            retryCount: nextRetryCount,
+            isRetrying: false,
+          },
+          () => {
+            this.focusAlertOrRetry();
+          }
+        );
+      }
     };
 
     void execute();

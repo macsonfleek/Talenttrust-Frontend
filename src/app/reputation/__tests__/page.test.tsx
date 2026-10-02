@@ -18,7 +18,14 @@ afterEach(() => { mockShouldThrowInProfile = false; });
 
 // Mock the ReputationProfile component to avoid complex rendering
 jest.mock('../../../components/ReputationProfile', () => {
-  return function MockReputationProfile(props: any) {
+  // The module also exports the pure band resolver that shapes the page's
+  // dataset. Stubbing only the component leaves it undefined inside the content
+  // module, so the shape step throws and every route-level test in this file
+  // fails for a reason unrelated to what it actually exercises.
+  const resolveReputationLevel = (score: number): string =>
+    score >= 4 ? 'Excellent' : score >= 2 ? 'Good' : 'New';
+
+  function MockReputationProfile(props: any) {
     if (mockShouldThrowInProfile) {
       throw new Error('Simulated reputation crash');
     }
@@ -40,7 +47,9 @@ jest.mock('../../../components/ReputationProfile', () => {
         )}
       </div>
     );
-  };
+  }
+
+  return { __esModule: true, default: MockReputationProfile, resolveReputationLevel };
 });
 
 // Mock ReputationSummaryCard component

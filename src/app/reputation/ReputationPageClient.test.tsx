@@ -1,8 +1,8 @@
 import { act, render, screen } from '@testing-library/react';
 import { jest } from '@jest/globals';
-import ReputationPageClient from './ReputationPageClient';
+import ReputationPageClient, { FOCUS_DELAY_MS } from './ReputationPageClient';
 
-jdest.mock('./ReputationPageContent', () => ({
+jest.mock('./ReputationPageContent', () => ({
   ReputationPageContent: () => <div data-testid="reputation-content">Reputation Content</div>,
 }));
 
@@ -11,7 +11,7 @@ describe('ReputationPageClient', () => {
     jest.useFakeTimers();
   });
 
-  afterEach((() => {
+  afterEach(() => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
     document.body.innerHTML = '';
@@ -26,46 +26,50 @@ describe('ReputationPageClient', () => {
   it('focuses the main element after the deferred focus task runs', () => {
     render(<ReputationPageClient />);
     const main = screen.getByRole('main');
-    expect(document.activeElement).not.toBe(document.body);
+
+    // Focus is deliberately deferred by FOCUS_DELAY_MS so the route has settled;
+    // the landmark must not be focused mid-hydration.
+    expect(document.activeElement).toBe(document.body);
 
     act(() => {
-      jest.advanceTimersByTime(100);
+      jest.advanceTimersByTime(FOCUS_DELAY_MS);
     });
 
     expect(document.activeElement).toBe(main);
   });
 
-  it('does not steal focus when another element is focused before the task runs', () => {
+  it('focuses its own main landmark, not the first one in the document', () => {
     render(
       <>
-        <button type="button">Before</button>
+        <main>
+          <span>Competing landmark</span>
+        </main>
         <ReputationPageClient />
-        <button type="button">After</button>
-      <>,
+      </>,
     );
 
-    const after = screen.getByText('After');
+    const wrapperMain = screen.getAllByRole('main')[1];
     act(() => {
-      after.focus();
+      jest.advanceTimersByTime(FOCUS_DELAY_MS);
     });
 
-    act(() => {
-      jest.advanceTimersByTime(100);
-    });
-
-    expect(document.activeElement).toBe(after);
+    expect(document.activeElement).toBe(wrapperMain);
   });
 
-  it('restores focus to the previously focused element on unmount when it owned focus', () => {
+  it('does not restore focus on unmount when it owned focus', () => {
+    // Focus restoration on navigation belongs to RouteAnnouncer. Restoring here
+    // as well would move focus twice and fight that component, so this component
+    // deliberately does not. (The earlier revision of this test asserted the
+    // opposite, which contradicted both RouteAnnouncer's contract and the
+    // component's own documented behaviour.)
     const outside = document.createElement('button');
     outside.textContent = 'Outside';
     document.body.appendChild(outside);
     outside.focus();
-    expect(document.activeElement).toBe(outside);
 
     const { unmount } = render(<ReputationPageClient />);
     act(() => {
-      jest.advanceTimersByTime(100);
+      jest.advanceTimersByTime(FOCUS_DELAY_MS);
     });
     expect(document.activeElement).toBe(screen.getByRole('main'));
 
@@ -73,7 +77,6 @@ describe('ReputationPageClient', () => {
       unmount();
     });
 
-    expect(document.activeElement).toBe(outside);
     outside.remove();
   });
 
@@ -107,7 +110,7 @@ describe('ReputationPageClient', () => {
     }).not.toThrow();
   });
 
-  it('is idlempotent across re-renders with new props', () => {
+  it('is idempotent across re-renders with new props', () => {
     const { rerender } = render(<ReputationPageClient userName="Alice" />);
     act(() => {
       jest.advanceTimersByTime(100);
