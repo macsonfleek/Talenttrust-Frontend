@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import GlobalError from './global-error';
 import { setErrorReporter } from '../lib/errorReporter';
 import { testA11y } from '../test-utils/a11y';
@@ -14,7 +14,7 @@ afterEach(() => {
   setErrorReporter(null);
 });
 
-const testError = Object.assign(new Error('Synthetic root crash'), { digest: undefined });
+const testError = new Error('Synthetic root crash');
 const mockReset = jest.fn();
 
 describe('GlobalError page', () => {
@@ -57,7 +57,12 @@ describe('GlobalError page', () => {
     render(<GlobalError error={testError} reset={mockReset} />);
 
     expect(mockReporter).toHaveBeenCalledTimes(1);
-    expect(mockReporter).toHaveBeenCalledWith(testError, 'Global Error Boundary', undefined, undefined);
+    expect(mockReporter).toHaveBeenCalledWith(
+      testError,
+      'Global Error Boundary',
+      undefined,
+      undefined,
+    );
   });
 
   it('is accessible and clean of violations via jest-axe', async () => {
@@ -81,20 +86,80 @@ describe('GlobalError page', () => {
     expect(report).toHaveBeenCalledTimes(2);
   });
 
-  it('prevents concurrent execution of reset (idempotent retries)', async () => {
-    const reset = jest.fn();
-    const error = new Error('Rate limited');
-    const report = jest.fn();
-    setErrorReporter(report);
+  it('prevents duplicate reset dispatches for the same failure when retries race', async () => {
+    const reset = jest.fn(() => new Promise<void>((resolve) => {
+      // Keep the first transition alive just long enough to let a second click
+      // arrive while the claim is held.
+      setTimeout(resolve, 0);
+    }));
 
-    render(<GlobalError error={error} reset={reset} />);
+    render(<GlobalError error={new Error('race')} reset={reset} />);
     const button = screen.getByRole('button', { name: /try again/i });
 
-    // Click once
-    fireEvent.click(button);
-    
-    // In a real environment with async reset, startTransition prevents concurrent runs
-    // Here we just verify it delegates to reset correctly
+    await act(async () => {
+      button.click();
+      // A second click while the first transition is still in flight must not
+      // start another reset.
+      button.click();
+      await Promise.resolve();
+    });
+
     expect(reset).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      // Let the pending transition settle so the affordance is re-armed.
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    // A later attempt on the same failure is still one retry, not a suppressed
+    // action.
+    await act(async () => {
+      button.click();
+    });
+    expect(reset).toHaveBeenCalledTimes(2);
+  });
+
+  it('prevents concurrent execution of reset (single-flight claim under bursts)', async () => {
+    // A never-settling reset keeps the transition pending, which is the window
+    // a real double-click / Enter-then-click lands in.
+    const reset = jest.fn(() => new Promise<void>(() => undefined));
+
+    render(<GlobalError error={new Error('burst')} reset={reset} />);
+    const button = screen.getByRole('button', { name: /try again/i });
+
+    // Three activations in one batch, before the render that would disable the
+    // button. Only the synchronous claim keeps two of them out.
+    act(() => {
+      button.click();
+      button.click();
+      button.click();
+    });
+    expect(reset).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports only once for duplicate concurrent mounts of the same failure identity', () => {
+    const reporter = jest.fn();
+    setErrorReporter(reporter);
+
+    const error = Object.assign(new Error('serialized root crash'), {
+      digest: 'd-1',
+    });
+
+    // In StrictMode the boundary can be mounted more than once under the same
+    // failure; the identity-based guard must collapse that into one report.
+    render(
+      <React.StrictMode>
+        <GlobalError error={error} reset={jest.fn()} />
+      </React.StrictMode>,
+    );
+
+    expect(reporter).toHaveBeenCalledTimes(1);
+    expect(reporter).toHaveBeenCalledWith(
+      error,
+      'Global Error Boundary',
+      undefined,
+      undefined,
+    );
   });
 });

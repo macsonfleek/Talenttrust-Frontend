@@ -1,7 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ReputationPage, { ReputationPageContent } from '../page';
-import { ReputationHistoryReadError } from '@/lib/readReputationHistory';
 import { reportError } from '@/lib/errorReporter';
 import { STORAGE_KEY } from '@/lib/repository';
 import { assertNoA11yViolations } from '@/test-utils/a11y';
@@ -22,10 +21,6 @@ jest.mock('@/components/ReputationProfile', () => {
   const React = require('react');
   return {
     __esModule: true,
-    // The module also exports the pure band resolver that shapes the page's
-    // dataset. Stubbing only `default` would leave it undefined in the content
-    // module and fail the shape step for a reason unrelated to these tests, so
-    // the mock mirrors the module's real public surface.
     resolveReputationLevel: (score: number) =>
       score >= 4 ? 'Excellent' : score >= 2 ? 'Good' : 'New',
     default: ({ history = [] }: { history?: ReputationEvent[] }) => {
@@ -59,7 +54,8 @@ const save = (history: ReputationEvent[]) =>
     STORAGE_KEY,
     JSON.stringify({ reputationEvents: history, contracts: [{ id: 'keep' }] }),
   );
-const ready = () => screen.findByRole('button', { name: 'Refresh reputation history' });
+const readyRefresh = () => screen.findByRole('button', { name: 'Refresh reputation history' });
+const readyRetry = () => screen.findByRole('button', { name: 'Retry reputation history' });
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -73,11 +69,14 @@ afterEach(() => {
 test('successful read preserves the current profile defaults and saved history', async () => {
   save([event]);
   render(<ReputationPage />);
-  expect(screen.getByRole('status')).toHaveTextContent('Loading reputation');
+  expect(screen.getByRole('status')).toHaveTextContent('Loading reputation history');
   await screen.findByText('Saved feedback');
   expect(screen.getByText('User: 4.5')).toBeInTheDocument();
-  expect(await ready()).toBeEnabled();
+  expect(await readyRefresh()).toBeEnabled();
   expect(reportError).not.toHaveBeenCalled();
+  expect(window.localStorage.getItem(STORAGE_KEY)).toBe(
+    JSON.stringify({ reputationEvents: [event], contracts: [{ id: 'keep' }] }),
+  );
 });
 
 test('storage failure is visible, retry succeeds, and private exception text is never reported', async () => {
@@ -109,8 +108,10 @@ test('failed refresh preserves the successful snapshot, persisted bytes and unsa
   fireEvent.change(screen.getByLabelText('Unsaved note'), { target: { value: 'Draft to retain' } });
   const raw = '{"private":"unparseable"';
   window.localStorage.setItem(STORAGE_KEY, raw);
-  fireEvent.click(await ready());
-  expect(await screen.findByRole('alert')).toHaveTextContent('Saved reputation history is invalid');
+  fireEvent.click(await readyRefresh());
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Saved reputation history is invalid',
+  );
   expect(screen.getByText('Saved feedback')).toBeInTheDocument();
   expect(screen.getByLabelText('Unsaved note')).toHaveValue('Draft to retain');
   expect(window.localStorage.getItem(STORAGE_KEY)).toBe(raw);
@@ -121,19 +122,58 @@ test('failed refresh preserves the successful snapshot, persisted bytes and unsa
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 });
 
-test('duplicate refresh clicks cannot start concurrent reads', async () => {
+test('duplicate refresh clicks are collapsed before a read can start', async () => {
   save([event]);
   const read = jest.spyOn(window.localStorage, 'getItem');
   render(<ReputationPage />);
   await screen.findByText('Saved feedback');
-  const button = await ready();
+  const button = await readyRefresh();
+
   act(() => {
     button.click();
     button.click();
     button.click();
   });
-  await waitFor(() => expect(button).toBeEnabled());
+
+  await waitFor(() => expect(read).toHaveBeenCalledTimes(2));
   expect(read).toHaveBeenCalledTimes(2);
+  expect(button).toBeEnabled();
+});
+
+test('a second refresh click during a pending read does not start a parallel read', async () => {
+  save([event]);
+  const read = jest.spyOn(window.localStorage, 'getItem');
+  render(<ReputationPage />);
+  await screen.findByText('Saved feedback');
+  const button = await readyRefresh();
+
+  act(() => {
+    button.click();
+    button.click();
+  });
+
+  await waitFor(() => expect(read).toHaveBeenCalledTimes(2));
+  expect(read).toHaveBeenCalledTimes(2);
+  expect(button).toBeEnabled();
+});
+
+test('duplicate retry clicks after a failed read are still collapsed', async () => {
+  save([event]);
+  jest.spyOn(window.localStorage, 'getItem').mockImplementationOnce(() => {
+    throw new Error('temporary failure');
+  });
+  render(<ReputationPage />);
+  await screen.findByRole('alert');
+  const button = await readyRetry();
+
+  act(() => {
+    button.click();
+    button.click();
+    button.click();
+  });
+
+  await waitFor(() => expect(reportError).toHaveBeenCalledTimes(1));
+  expect(reportError).toHaveBeenCalledTimes(1);
 });
 
 test('empty or legacy history is successful rather than a read failure', async () => {
@@ -230,7 +270,7 @@ test.each([false, true])(
     });
     view.unmount();
     await act(async () =>
-      finish(reject ? new ReputationHistoryReadError('invalid-data') : [event]),
+      finish(reject ? new Error('invalid-data') : [event]),
     );
     expect(reportError).not.toHaveBeenCalled();
   },
