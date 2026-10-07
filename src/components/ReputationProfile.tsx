@@ -1,8 +1,18 @@
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { execCommandFallback } from '@/lib/clipboardFallback';
 import { useOptimisticReputationMutation } from '@/hooks/useOptimisticReputationMutation';
 import { formatRelativeTime, toISOString } from '@/lib/formatRelativeTime';
-import { KbdHint } from '@/components/KbdHint';
+import { ConfirmDialog } from './ConfirmDialog';
+import { useToast } from './toast/toast-provider';
+import { useFormAnnouncer } from '@/hooks/useFormAnnouncer';
 
 export type ReputationEvent = {
   id: string;
@@ -74,11 +84,6 @@ export function resolveReputationLevel(score: number, maxScore: number): string 
 const reputationSummary =
   'Reputation represents verified trust signals and activity history, not sensitive personal metadata. Privacy-friendly defaults keep your profile safe.';
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { ConfirmDialog } from './ConfirmDialog';
-import { useToast } from './toast/toast-provider';
-import { useFormAnnouncer } from '@/hooks/useFormAnnouncer';
 
 import {
   DEFAULT_DIR,

@@ -59,7 +59,10 @@ async function resolveContractDataOnce(
   }
 
   if (simulateError) {
-    throw new Error(`Failed to load contract #${id}. Please try again.`);
+    // The id is deliberately omitted: this message reaches user-visible UI and
+    // telemetry, and contract ids are identifiers we do not log. The caller knows
+    // which id it asked for.
+    throw new Error('Failed to load contract. Please try again.');
   }
 
   // Mock data for the given contract ID

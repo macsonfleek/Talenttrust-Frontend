@@ -119,7 +119,12 @@ describe('ReputationPageContent', () => {
   });
 
   it('preserves the level and history passed through to downstream components', () => {
-    const history = [{ id: '1', score: 10 }] as unknown as Reputation['history'];
+    // A *valid* event: `normalizeReputationPageInput` rejects a dataset holding
+    // a malformed or duplicate entry, so pass-through is only observable for
+    // well-formed input. The rejection path has its own cases below.
+    const history = [
+      { id: 'evt-1', type: 'Review', summary: 'Positive review', date: '2026-04-24' },
+    ] as unknown as Reputation['history'];
     render(
       <ReputationPageContent
         reputationData={buildReputation({ level: 'Platinum', history })}
@@ -131,20 +136,20 @@ describe('ReputationPageContent', () => {
   });
 
   it('wraps content in SafeBoundary for both empty and populated states', () => {
-    const { unremount } = render(<ReputationPageContent />);
+    const { unmount } = render(<ReputationPageContent />);
     expect(screen.getByTestId('safe-boundary')).toBeInTheDocument();
-    unremount();
+    unmount();
     render(<ReputationPageContent reputationData={buildReputation()} />);
     expect(screen.getByTestId('safe-boundary')).toBeInTheDocument();
   });
 
   it('renders deterministically across repeated renders with the same input', () => {
     const data = buildReputation({ score: 7 });
-    const { unremount } = render(
+    const { unmount } = render(
       <ReputationPageContent reputationData={data} userName="Carol" />,
     );
     const first = screen.getByTestId('summary-card').textContent;
-    unremount();
+    unmount();
     render(
       <ReputationPageContent reputationData={data} userName="Carol" />,
     );

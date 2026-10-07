@@ -26,7 +26,6 @@ import {
   waitFor,
   within,
   act,
-  fireEvent,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ActionPanel from '../ActionPanel';
@@ -510,7 +509,8 @@ describe('non-Error throw produces a generic message', () => {
   it('shows a generic internalError when a string is thrown from releaseFunds', async () => {
     const user = userEvent.setup();
     const throwingRelease = jest.fn(() => {
-      // eslint-disable-next-line @typescript-eslint/no-throw-literal
+      // Deliberate non-Error throw: the component must still surface a
+      // generic internalError rather than leaking the raw value.
       throw 'something went wrong';
     });
 
@@ -807,7 +807,17 @@ describe('disableMutations race between dialog-open and dialog-confirm', () => {
 
     // Callback must NOT have been invoked.
     expect(onReleaseFunds).not.toHaveBeenCalled();
-    // Dialog is closed (handleConfirm calls setConfirmAction(null)).
+    // The dialog survives and explains the refusal; Cancel stays reachable so
+    // the user is never trapped. (An earlier revision asserted auto-close here;
+    // that contradicted the validation suite and discarded the user's decision
+    // to confirm for a condition that clears on its own.)
+    expect(screen.getByRole('alertdialog', { name: /confirm release funds/i })).toBeInTheDocument();
+    await user.click(
+      within(screen.getByRole('alertdialog', { name: /confirm release funds/i })).getByRole(
+        'button',
+        { name: /cancel/i },
+      ),
+    );
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
@@ -846,6 +856,14 @@ describe('disableMutations race between dialog-open and dialog-confirm', () => {
     await user.click(within(dialog).getByRole('button', { name: /submit milestone/i }));
 
     expect(onSubmitMilestone).not.toHaveBeenCalled();
+    // Survives the refusal with a visible explanation; Cancel still dismisses it.
+    expect(screen.getByRole('dialog', { name: /confirm submit milestone/i })).toBeInTheDocument();
+    await user.click(
+      within(screen.getByRole('dialog', { name: /confirm submit milestone/i })).getByRole(
+        'button',
+        { name: /cancel/i },
+      ),
+    );
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
@@ -890,10 +908,31 @@ describe('disableMutations race for inline dispute form', () => {
 
     // Callback must NOT have been invoked.
     expect(onDispute).not.toHaveBeenCalled();
-    // Form is closed.
+    // The form stays open with its text intact. `disableMutations` clears on
+    // its own (reconnect, or a fresh fetch), so auto-closing here would throw
+    // away the user's words for a condition that resolves in a moment. The
+    // typed reason is preserved and the refusal is shown instead.
     expect(
-      screen.queryByRole('group', { name: /describe the reason for this dispute/i }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('group', { name: /describe the reason for this dispute/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /reason/i })).toHaveValue('Reason text');
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Actions are disabled while offline or viewing stale data.',
+    );
+
+    // Recovery is not sticky: once the condition clears the same input submits.
+    rerender(
+      <ActionPanel
+        status="Active"
+        onDispute={onDispute}
+        onSubmitMilestone={jest.fn()}
+        onReleaseFunds={jest.fn()}
+        disableMutations={false}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: /confirm dispute/i }));
+    expect(onDispute).toHaveBeenCalledTimes(1);
+    expect(onDispute).toHaveBeenCalledWith('Reason text');
   });
 });
 

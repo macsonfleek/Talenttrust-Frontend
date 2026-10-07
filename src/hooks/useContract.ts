@@ -103,11 +103,24 @@ export function useContract(
   // Track the latest request token and active controller outside of React state
   // so that async callbacks can compare against the current value without stale closures.
   const requestIdRef = useRef(0);
-  const controllerRef = useRef({
-    current: null as AbortController | null,
-  });
+  // Must hold the controller directly. Wrapping it in another `{ current }`
+  // object left `controllerRef.current` as a plain literal, so the unmount
+  // cleanup called `.abort()` on a non-AbortController and threw whenever a
+  // controller had never been assigned (invalid id, `enabled: false`, or an
+  // unmount that raced the first load).
+  const controllerRef = useRef<AbortController | null>(null);
   const mountedRef = useRef(true);
   const onErrorRef = useRef(onError);
+  // The object-valued options are read through a ref rather than captured in
+  // the `load` callback. Any consumer passing an inline `fetchImpl`/`sleep`
+  // lambda re-creates the options object on every render, which previously
+  // changed `load`'s identity, re-fired the load effect, and spun the
+  // component into an unbounded setState loop.
+  const loadOptionsRef = useRef({ retries, retryDelayMs, fetchImpl, sleep, correlationId });
+
+  useEffect(() => {
+    loadOptionsRef.current = { retries, retryDelayMs, fetchImpl, sleep, correlationId };
+  });
 
   useEffect(() => {
     onErrorRef.current = onError;
@@ -128,6 +141,13 @@ export function useContract(
     if (!enabled) {
       return;
     }
+    const {
+      retries,
+      retryDelayMs,
+      fetchImpl,
+      sleep,
+      correlationId,
+    } = loadOptionsRef.current;
 
     // Invalid id: fail fast without hitting the network.
     if (!normalizedId) {
@@ -149,6 +169,11 @@ export function useContract(
         correlationId,
         metadata: { reason: "invalid-id" },
       }, "warning");
+      // `onError` is documented as firing on *every* failure, so the fail-fast
+      // guard has to notify subscribers too. Skipping it left consumers blind
+      // to unusable-id failures, which are otherwise indistinguishable from a
+      // healthy load that simply never ran.
+      onErrorRef.current?.(error, 1);
       return;
     }
 
@@ -222,15 +247,7 @@ export function useContract(
         onErrorRef.current?.(error, state.attempts + 1);
       }
     }
-  }, [
-    enabled,
-    normalizedId,
-    retries,
-    retryDelayMs,
-    fetchImpl,
-    sleep,
-    correlationId,
-  ]);
+  }, [enabled, normalizedId, correlationId]);
 
   useEffect(() => {
     if (!enabled) return;

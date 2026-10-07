@@ -20,19 +20,24 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import * as pageModule from '../page';
-import RoutePage, { ReputationPageContent as ReExportedContent } from '../page';
+import RoutePage, {
+  FOCUS_ON_MOUNT_DELAY_MS,
+  ReputationPageContent as ReExportedContent,
+} from '../page';
 import * as contentModule from '../ReputationPageContent';
 import { REPUTATION_DEMO_SCORE, shapeReputationData } from '../ReputationPageContent';
-import { listReputationEvents } from '@/lib/repository';
-import { checkStorageAvailability } from '@/lib/safeStorage';
+import { readReputationHistory } from '@/lib/readReputationHistory';
+import { ReputationHistoryReadError } from '@/lib/readReputationHistory';
 import { reportError } from '@/lib/errorReporter';
+import type { ReputationEvent } from '@/types/domain';
 
-jest.mock('@/lib/repository', () => ({
-  listReputationEvents: jest.fn(),
-}));
-
-jest.mock('@/lib/safeStorage', () => ({
-  checkStorageAvailability: jest.fn(() => true),
+// The route reads through `readReputationHistory`: a strict, read-only snapshot
+// that rejects the whole dataset rather than dropping entries, and reports a
+// reason code instead of degrading silently to an empty list. That is what makes
+// "cannot read" distinguishable from "nothing stored".
+jest.mock('@/lib/readReputationHistory', () => ({
+  ...jest.requireActual('@/lib/readReputationHistory'),
+  readReputationHistory: jest.fn(),
 }));
 
 jest.mock('@/lib/errorReporter', () => ({
@@ -54,7 +59,33 @@ afterEach(() => {
 // Mirror the real component's data-driven surface so the route's composition is
 // asserted through the same props, without the profile's own interactive weight.
 jest.mock('../../../components/ReputationProfile', () => {
-  const actual = jest.requireActual('../../../components/ReputationProfile');
+  // `resolveReputationLevel` is a pure export the content module calls when it
+  // shapes the dataset. Re-exporting it keeps the route's shaping step real.
+  // It is mirrored rather than pulled in with `requireActual` because
+  // re-evaluating the module inside the mock factory collides with this file's
+  // hoisted React bindings.
+  // Mirrors the real bands (Newcomer / Contributor / Active Contributor /
+  // Trusted Partner / Expert) so a change to the band table is caught here
+  // rather than being papered over by a looser stub.
+  const resolveReputationLevel = (score: number, maxScore: number): string => {
+    const scale = maxScore / 5;
+    const bands = [
+      { min: 0 * scale, label: 'Newcomer' },
+      { min: 1 * scale, label: 'Contributor' },
+      { min: 2 * scale, label: 'Active Contributor' },
+      { min: 3 * scale, label: 'Trusted Partner' },
+      { min: 4 * scale, label: 'Expert' },
+    ];
+    if (score < 0) return bands[0].label;
+    if (score >= maxScore) return bands[bands.length - 1].label;
+    const found = bands.find((band, idx) =>
+      idx === bands.length - 1
+        ? score >= band.min && score <= band.min + scale
+        : score >= band.min && score < band.min + scale,
+    );
+    return found ? found.label : bands[0].label;
+  };
+
   function MockReputationProfile(props: any) {
     const useSearchParamsMock = jest.requireMock('next/navigation').useSearchParams;
     useSearchParamsMock();
@@ -71,7 +102,7 @@ jest.mock('../../../components/ReputationProfile', () => {
   }
   return {
     __esModule: true,
-    ...actual,
+    resolveReputationLevel,
     default: MockReputationProfile,
   };
 });
@@ -104,9 +135,21 @@ async function renderRoute() {
   return view;
 }
 
-function mockRead(events: unknown[], storageAvailable = true) {
-  (checkStorageAvailability as jest.Mock).mockReturnValue(storageAvailable);
-  (listReputationEvents as jest.Mock).mockReturnValue(events);
+/** Seeds a successful read of `events`. */
+function mockRead(events: ReputationEvent[]) {
+  (readReputationHistory as jest.Mock).mockReturnValue(events);
+}
+
+/**
+ * Seeds a read that fails for `reason`.
+ *
+ * The route must be able to tell the two failure reasons apart and surface a
+ * different next step for each, so the tests set them explicitly.
+ */
+function mockReadFailure(reason: 'storage-unavailable' | 'invalid-data') {
+  (readReputationHistory as jest.Mock).mockImplementation(() => {
+    throw new ReputationHistoryReadError(reason);
+  });
 }
 
 describe('reputation route — public surface', () => {
@@ -135,8 +178,10 @@ describe('reputation route — state determinism', () => {
     jest.useFakeTimers();
     const { unmount } = render(<RoutePage />);
 
-    expect(screen.getByRole('status')).toHaveTextContent('Loading reputation');
-    expect(screen.getByTestId('empty-state')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading reputation history');
+    // Nothing is claimed about the data yet: no profile and no empty state.
+    expect(screen.queryByTestId('reputation-profile')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('empty-state')).not.toBeInTheDocument();
 
     unmount();
     jest.useRealTimers();
@@ -163,18 +208,18 @@ describe('reputation route — state determinism', () => {
     expect(screen.queryByTestId('empty-state')).not.toBeInTheDocument();
   });
 
-  it('drops malformed events instead of rendering them', async () => {
-    mockRead([
-      EVENTS[0],
-      null,
-      { id: '', type: 'Broken', summary: 'No id', date: '2026-04-01' },
-      { type: 'No id', summary: 'Missing id', date: '2026-04-01' },
-      'not-an-event',
-      EVENTS[1],
-    ]);
+  it('withholds the whole dataset when the snapshot holds a malformed event', async () => {
+    // C3: a partially-trusted dataset is silent data loss the user cannot
+    // detect, so the route shows the recoverable error instead. (An earlier
+    // revision of this test expected the two valid events to survive, which
+    // contradicted the strict reader and the route's documented contract.)
+    mockReadFailure('invalid-data');
     await renderRoute();
 
-    expect(screen.getByTestId('profile-history-count')).toHaveTextContent('2');
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Saved reputation history is invalid',
+    );
+    expect(screen.queryByTestId('reputation-profile')).not.toBeInTheDocument();
   });
 
   it('keeps score and level consistent for the boundary score', () => {
@@ -197,18 +242,20 @@ describe('reputation route — degraded persistence', () => {
   });
 
   it('shows a recoverable alert and no profile when storage is unavailable', async () => {
-    mockRead(EVENTS, false);
+    mockReadFailure('storage-unavailable');
     await renderRoute();
 
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'Reputation history could not be read from this browser'
+      'Check browser storage access and retry',
     );
     expect(screen.queryByTestId('reputation-profile')).not.toBeInTheDocument();
-    expect(screen.getByTestId('empty-state')).toBeInTheDocument();
+    // We know nothing about the stored data, so neither the profile nor the
+    // "no reputation yet" state is claimed.
+    expect(screen.queryByTestId('empty-state')).not.toBeInTheDocument();
   });
 
   it('does not leak stored data or raw errors into the visible alert', async () => {
-    mockRead(EVENTS, false);
+    mockReadFailure('storage-unavailable');
     await renderRoute();
 
     const alert = screen.getByRole('alert');
@@ -217,15 +264,17 @@ describe('reputation route — degraded persistence', () => {
   });
 
   it('recovers through Retry once storage is readable again', async () => {
-    mockRead(EVENTS, false);
+    mockReadFailure('storage-unavailable');
     render(<RoutePage />);
     await act(async () => {
       await Promise.resolve();
     });
     expect(screen.queryByTestId('reputation-profile')).not.toBeInTheDocument();
 
-    (checkStorageAvailability as jest.Mock).mockReturnValue(true);
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    mockRead(EVENTS);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Retry reputation history' }),
+    );
     await act(async () => {
       await Promise.resolve();
     });
@@ -234,26 +283,32 @@ describe('reputation route — degraded persistence', () => {
     expect(screen.getByTestId('reputation-profile')).toBeInTheDocument();
   });
 
-  it('reports and degrades when the repository read throws', async () => {
-    (checkStorageAvailability as jest.Mock).mockReturnValue(true);
-    (listReputationEvents as jest.Mock).mockImplementation(() => {
+  it('reports with a fixed message and a reason code when the read throws', async () => {
+    (readReputationHistory as jest.Mock).mockImplementation(() => {
       throw new Error('storage exploded');
     });
     await renderRoute();
 
+    // C6: the original error is never forwarded, because it may embed the
+    // stored bytes.
     expect(reportError).toHaveBeenCalledWith(
-      expect.any(Error),
-      '[reputation] Failed to read reputation events.'
+      new Error('Reputation history read failed'),
+      'ReputationPage.load',
+      'error',
+      { reason: 'read-failed' },
     );
     expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).not.toHaveTextContent('storage exploded');
     expect(screen.queryByTestId('reputation-profile')).not.toBeInTheDocument();
   });
 
   it('keeps the alert when a retry fails again rather than showing stale data', async () => {
-    mockRead(EVENTS, false);
+    mockReadFailure('storage-unavailable');
     await renderRoute();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Retry reputation history' }),
+    );
     await act(async () => {
       await Promise.resolve();
     });
@@ -279,28 +334,29 @@ describe('reputation route — concurrent reads', () => {
       await Promise.resolve();
     });
 
-    expect(listReputationEvents).toHaveBeenCalledTimes(1);
+    expect(readReputationHistory).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('reputation-profile')).toBeInTheDocument();
   });
 
-  it('collapses back-to-back retries into a single newest-generation read', async () => {
-    mockRead(EVENTS, false);
+  it('collapses back-to-back retries into a single single-flight read', async () => {
+    mockReadFailure('storage-unavailable');
     render(<RoutePage />);
     await act(async () => {
       await Promise.resolve();
     });
-    (checkStorageAvailability as jest.Mock).mockClear();
+    (readReputationHistory as jest.Mock).mockClear();
 
-    const retry = screen.getByRole('button', { name: 'Retry' });
+    const retry = screen.getByRole('button', { name: 'Retry reputation history' });
+    // Both clicks land in the same batch, before the render that would disable
+    // the button. The synchronous in-flight flag is what stops the second read
+    // from starting at all.
     fireEvent.click(retry);
     fireEvent.click(retry);
     await act(async () => {
       await Promise.resolve();
     });
 
-    // Each click bumps the generation; only the newest one passes the guard and
-    // performs a read, so a stale resolution can never land on the fresh one.
-    expect(checkStorageAvailability).toHaveBeenCalledTimes(1);
+    expect(readReputationHistory).toHaveBeenCalledTimes(1);
   });
 
   it('survives a rapid mount/unmount cycle without writing state late', async () => {
@@ -337,6 +393,8 @@ describe('reputation route — content crash isolation', () => {
     mockProfileShouldThrow = false;
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
 
+    // The SafeBoundary retry re-renders from the retained snapshot. That it does
+    // so without re-reading storage is pinned by recovery.test.tsx.
     expect(screen.getByTestId('reputation-profile')).toBeInTheDocument();
   });
 });
@@ -364,7 +422,7 @@ describe('reputation route — accessibility landmarks', () => {
     const { unmount } = render(<RoutePage />);
 
     act(() => {
-      jest.advanceTimersByTime(100);
+      jest.advanceTimersByTime(FOCUS_ON_MOUNT_DELAY_MS);
     });
 
     const main = screen.getByRole('main');
@@ -389,7 +447,7 @@ describe('reputation route — accessibility landmarks', () => {
     render(<RoutePage />);
     expect(() => {
       act(() => {
-        jest.advanceTimersByTime(100);
+        jest.advanceTimersByTime(FOCUS_ON_MOUNT_DELAY_MS);
       });
     }).not.toThrow();
 

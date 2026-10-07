@@ -1,1 +1,233 @@
-LyoqCiAqIFZhbGlkYXRpb24gYm91bmRhcmllcyBmb3IgdGhlIHNpZ24taW4gZm9ybSAoc3JjL2FwcC9wYWdlLnRzeCkuCiAqCiAqIFRoaXMgbW9kdWxlIGRlZmluZXMgdGhlIGNhbm9uaWNhbCwgc2lkZS1lZmZlY3QtZnJlZSB2YWxpZGF0aW9uIGxheWVyIGZvciB0aGUKICogc2lnbi1pbiBmb3JtLiBJdCBpcyB0aGUgc2luZ2xlIHNvdXJjZSBvZiB0cnV0aCBmb3I6CiAqCiAqICAgMS4gQWNjZXB0ZWQgaW5wdXQgKHZhbGlkIGVtYWlsICsgc3Ryb25nIGVub3VnaCBwYXNzd29yZCkuCiAqICAgMi4gUmVqZWN0ZWQgaW5wdXQgKG1hbGZvcm1lZCBlbWFpbCwgd2VhayBwYXNzd29yZCwgZW1wdHkgZmllbGRzKS4KICogICAzLiBEdXBsaWNhdGUgc3VibWlzc2lvbnMgKGlkZW50aWNhbCBwYXlsb2FkcyBhcmUgZGV0ZXJtaW5pc3RpY2FsbHkgZGVkdXBlZCkuCiAqICAgNC4gQm91bmRhcnkgdmFsdWVzIChleGFjdCBtaW4vbWF4IGxlbmd0aHMsIHdoaXRlc3BhY2Ugb25seSwgVW5pY29kZSBsZW5ndGgpLgoqCiAqIEludmFyaWFudHM6CiAqICAgLSBQdXJlIGZ1bmN0aW9uczogbm8gRE9NLCBubyB0aW1lcnMsIG5vIG5ldHdvcmssIG5vIGdsb2JhbCBtdXRhYmxlIHN0YXRlLgogKiAgIC0gRGV0ZXJtaW5pc3RpYzogdGhlIHNhbWUgaW5wdXQgYWx3YXlzIHByb2R1Y2VzIHRoZSBzYW1lIG91dHB1dC4KICogICAtIE5vcm1hbGl6YXRpb24gaXMgZXhwbGljaXQgYW5kIGxpbWl0ZWQgdG8gdHJpbW1pbmcgZW1haWwgd2hpdGVzcGFjZS4KICogICAtIEVycm9yIG1lc3NhZ2VzIG5ldmVyIGVjaG8gdGhlIHJhdyBpbnB1dCAobm8gUC1JSSAvIFgtU1MgcmVncmVzc2lvbnMpLgogKi8KCi8qKiBNYXhpbXVtIGFjY2VwdGVkIGVtYWlsIGxlbmd0aCAoY2hhcmFjdGVycykuICovCmV4cG9ydCBjb25zdCBNQVhfRU1BSUxfTEVOR1RIID0gMjU0OwoKLyoqIE1pbmltdW0gYWNjZXB0ZWQgcGFzc3dvcmQgbGVuZ3RoIChjaGFyYWN0ZXJzKS4gKi8KZXhwb3J0IGNvbnN0IE1JTl9QQVNTV09SRF9MRU5HVEggPSA4OwoKLyoqIE1heGltdW0gYWNjZXB0ZWQgcGFzc3dvcmQgbGVuZ3RoIChjaGFyYWN0ZXJzKS4gKi8KZXhwb3J0IGNvbnN0IE1BWF9QQVNTV09SRF9MRU5HVEggPSAxMjg7CgovKiogTWF4aW11bSBudW1iZXIgb2YgZGlzdGluY3QgZmllbGQgZXJyb3JzIHJldHVybmVkIGZvciBhIHNpbmdsZSBzdWJtaXQuICovCmV4cG9ydCBjb25zdCBNQVhfRVJST1JTID0gMjsKCi eightKICogQ2Fub25pY2FsIGZpZWxkIGlkZW50aWZpZXJzIHVzZWQgYnkgdGhlIGZvcm0gYW5kIHRoZSBlcnJvciBzdW1tYXJ5LgogKi8KZXhwb3J0IHR5cGUgVmFsaWRhdGlvbkZpZWxkSWQgPSAnZW1haWwnIHwgcGFzc3dvcmQnOwoKLyoqIEEgc2luZ2xlIGZpZWxkLWxldmVsIHZhbGlkYXRpb24gZXJyb3IuICovCmV4cG9ydCBpbnRlcmZhY2UgVmFsaWRhdGlvbkVycm9yIHsKICBmaWVsZElkOiBWYWxpZGF0aW9uRmllbGRJZDsKICBtZXNzYWdlOiBzdHJpbmc7Cn0KCi8qKiBSZXN1bHQgb2YgYSBmdWxsIGZvcm0gdmFsaWRhdGlvbiBwYXNzLiAqLwpleHBvcnQgaW50ZXJmYWNlIFZhbGlkYXRpb25SZXN1bHQgewogIC8qKiBUcnVlIHdoZW4gdGhlIHBheWxvYWQgaXMgYWNjZXB0ZWQgYW5kIG5vIGVycm9ycyBleGlzdC4gKi8KICB2YWxpZDogYm9vbGVhbjsKICAvKiogT3JkZXJlZCwgZGVkdXBlZCBlcnJvcnMgKG9uZSBwZXIgZmllbGQpLiAqLwogIGVycm9yczogVmFsaWRhdGlvbkVycm9yW107CiAgLyoqIE5vcm1hbGl6ZWQgZW1haWwgKHRyaW1tZWQpLCBzYWZlIHRvIGRpc3BsYXkgb3IgcGVyc2lzdC4gKi8KICBub3JtYWxpemVkRW1haWw6IHN0cmluZzsKfQoKLyoqCiAqIFJmQyA1MzIyLWxpa2UgZW1haWwgcGF0dGVybi4gSW50ZW50aW9uYWxseSBjb25zZXJ2YXRpdmU6CiAqICAgLSBFeGFjdGx5IG9uZSBgQGAsIG5vIGxlYWRpbmcvdHJhaWxpbmcgZG90cyBpbiB0aGUgbG9jYWwgcGFydC4KICogICAtIERvbWFpbiBsYWJlbHMgYXJlIGFscGhhbnVtZXJpYyB3aXRoIGh5cGhlbnMsIG5vdCBsZWFkaW5nL3RyYWlsaW5nIGh5cGhlbnMuCiAqICAgLSBUTFMgYXQgbGVhc3QgdHdvIGxldHRlcnMuCiAqIFRoaXMgaXMgYSBmb3JtYXQgZ2F0ZSwgbm90IGFuIGF1dGhvcml0eSBvbiBkZWxpdmVyYWJpbGl0eS4KICovCmNvbnN0IEVNQUlMX1BBVFRFUk4gPQogIC9eW0EtWmEtejAtOV4hIyQlJicqKy89X2B7fH1+LV0rKD86XC5bQS1aYS16MC05XiEjJCUmJyorLz1fYHt8fX4tXSspKiBAGltBLVphLXowLTldKD86W0EtWmEtejAtOV0qW0EtWmEtejAtOV0pPyg/OlwuW0EtWmEtejAtOV0oPzpbQS1aYS16MC05XSpbQS1aYS16MC05XSk/KSpcLltBLVphLXpdKD86W0EtWmEtejAtOV0qW0EtWmEtejAtOV0pPyQvOwoKLyoqCiAqIE5vcm1hbGl6ZSBhbiBlbWFpbCBieSB0cmltbWluZyBzdXJyb3VuZGluZyB3aGl0ZXNwYWNlIGFuZCBsb3dlcmNhc2luZyB0aGUKICogZG9tYWluIHBhcnQgb25seS4gVGhlIGxvY2FsIHBhcnQgaXMgY2FzZS1zZW5zaXRpdmUgcGVyIFJGQyA1MzIyIGFuZCBpcyBwcmVzZXJ2ZWQKICogdmVyYmF0aW0uIE5vIG90aGVyIHRyYW5zZm9ybWF0aW9ucyBhcmUgYXBwbGllZC4KICovCmV4cG9ydCBmdW5jdGlvbiBub3JtYWxpemVFbWFpbChyYXc6IHVua25vd24pOiBzdHJpbmcgewogIGlmICh0eXBlb2YgcmF3ICE9PSAnc3RyaW5nJykgcmV0dXJuICcnOwogIGNvbnN0IHRyaW1tZWQgPSByYXcudHJpbSgpOwogIGNvbnN0IGF0SW5kZXggPSB0cmltbWVkLmxhc3RJbmRleE9mKCdAJyk7CiAgaWYgKGF0SW5kZXggPT0gLTEpIHJldHVybiB0cmltbWVkOwogIGNvbnN0IGxvY2FsID0gdHJpbW1lZC5zbGljZSgwLCBhdEluZGV4KTsKICBjb25zdCBkb21haW4gPSB0cmltbWVkLnNsaWNlKGF0SW5kZXggKyAxKTsKICByZXR1cm4gYCR7bG9jYWx9QCR7ZG9tYWluLnRvTG93ZXJDYXNlKCl9YDsKfQoKLyoqCiAqIFJldHVybiB0aGUgVW5pY29kZSBjb2RlLXBvaW50IGxlbmd0aCBvZiBhIHN0cmluZy4gVXNpbmcgY29kZSBwb2ludHMgcmF0aGVyCiAqIHRoYW4gVVRGLTE2IGNvZGUgdW5pdHMgbWVhbnMgYXN0cmFsIHN5bWJvbHMgKGUuZy4gZW1vamkpIGNvdW50IGFzIG9uZQogKiBjaGFyYWN0ZXIsIG1hdGNoaW5nIHVzZXIgcGVyY2VwdGlvbiBhbmQgdGhlIGJyb3dzZXIncyBtYXhMZW5ndGggc2VtYW50aWNzLgogKi8KZXhwb3J0IGZ1bmN0aW9uIGNvdW50Q29kZVBvaW50cyh2YWx1ZTogc3RyaW5nKTogbnVtYmVyIHsKICByZXR1cm4gQXJyYXkuZnJvbSh2YWx1ZSkubGVuZ3RoOwp9CgovKiogVHJ1ZSB3aGVuIHRoZSB2YWx1ZSBpcyBhIG5vbi1lbXB0eSBzdHJpbmcgYWZ0ZXIgdHJpbW1pbmcuICovCmZ1bmN0aW9uIGhhc0NvbnRlbnQodmFsdWU6IHVua25vd24pOiB2YWx1ZSBpcyBzdHJpbmcgewogIHJldHVybiB0eXBlb2YgdmFsdWUgPT09ICdzdHJpbmcnICYmIHZhbHVlLnRyaW0oKS5sZW5ndGggPiAwOwp9CgovKiogVmFsaWRhdGUgdGhlIGVtYWlsIGZpZWxkIGFuZCByZXR1cm4gYW4gZXJyb3IgbWVzc2FnZSBvciBudWxsLiAqLwpleHBvcnQgZnVuY3Rpb24gdmFsaWRhdGVFbWFpbEZpZWxkKHJhdzogdW5rbm93bik6IHN0cmluZyB8IG51bGwgewogIGlmICghaGFzQ29udGVudChyYXcpKSB7CiAgICByZXR1cm4gJ0VtYWlsIGlzIHJlcXVpcmVkLic7CiAgfQoKICBjb25zdCBub3JtYWxpemVkID0gbm9ybWFsaXplRW1haWwocmF3KTsKCiAgaWYgKGNvdW50Q29kZVBvaW50cyhub3JtYWxpemVkKSA+IE1BWF9FTUFJTF9MRU5HVEgpIHsKICAgIHJldHVybiBgRW1haWwgbXVzdCBiZSBhdCBtb3N0ICR7TUFYX0VNQUlMX0xFTkdUSH0gY2hhcmFjdGVycy5gOwogIH0KCiAgaWYgKCFFTUFJTF9QQVRURVJOLnRlc3Qobm9ybWFsaXplZCkpIHsKICAgIHJldHVybiAnRW50ZXIgYSB2YWxpZCBlbWFpbCBhZGRyZXNzLic7CiAgfQoKICByZXR1cm4gbnVsbDsKfQoKLyoqCiAqIFZhbGlkYXRlIHRoZSBwYXNzd29yZCBmaWVsZCBhbmQgcmV0dXJuIGFuIGVycm9yIG1lc3NhZ2Ugb3IgbnVsbC4KICoKICogTm90ZTogd2UgZG8gbm90IHRyaW0gcGFzc3dvcmRzLiBXaGl0ZXNwYWNlIGlzIGEgbGVnaXRpbWF0ZSBwYXNzd29yZCBjaGFyYWN0ZXIsCiAqIGFuZCB0cmltbWluZyB3b3VsZCBzaWxlbnRseSBhbHRlciB0aGUgc2VjcmV0IHRoZSB1c2VyIGludGVuZGVkIHRvIHN1Ym1pdC4KICovCmV4cG9ydCBmdW5jdGlvbiB2YWxpZGF0ZVBhc3N3b3JkRmllbGQocmF3OiB1bmtub3duKTogc3RyaW5nIHwgbnVsbCB7CiAgaWYgKHR5cGVvZiByYXcgIT09ICdzdHJpbmcnIHx8IHJhdy5sZW5ndGggPT09IDApIHsKICAgIHJldHVybiAnUGFzc3dvcmQgaXMgcmVxdWlyZWQuJzsKICB9CgogIGNvbnN0IGxlbmd0aCA9IGNvdW50Q29kZVBvaW50cyhyYXcpOwoKICBpZiAobGVuZ3RoIDwgTUlOX1BBU1NXT1JEX0xFTkdUSCkgewogICAgcmV0dXJuIGBQYXNzd29yZCBtdXN0IGJlIGF0IGxlYXN0ICR7TUlOX1BBU1NXT1JEX0xFTkdUSH0gY2hhcmFjdGVycy5gOwogIH0KCiAgaWYgKGxlbmd0aCA+IE1BWF9QQVNTV09SRF9MRU5HVEgpIHsKICAgIHJldHVybiBgUGFzc3dvcmQgbXVzdCBiZSBhdCBtb3N0ICR7TUFYX1BBU1NXT1JEX0xFTkdUSH0gY2hhcmFjdGVycy5gOwogIH0KCiAgcmV0dXJuIG51bGw7Cn0KCi8qKgogKiBWYWxpZGF0ZSB0aGUgZnVsbCBzaWduLWluIHBheWxvYWQuCiAqCiAqIEJlaGF2aW9yOgogKiAgIC0gUmV0dXJucyBhIGRldGVybWluaXN0aWMsIGRlZHVwbGljYXRlZCwgZmllbGQtb3JkZXJlZCBlcnJvciBsaXN0LgogKiAgIC0gQ29lcmNlcyBub24tc3RyaW5nIGlucHV0cyB0byBlbXB0eSBzdHJpbmdzIHNvIGEgY29tcHJvbWlzZWQgY2FsbGVyIGNhbm5vdAogKiAgICAgc211Z2dsZSBvYmplY3RzIG9yIG51bGxzIHRocm91Z2ggdGhlIGJvdW5kYXJ5LgogKiAgIC0gTmV2ZXIgdGhyb3dzOyBhbGwgZmFpbHVyZSBtb2RlcyBhcmUgcmVwcmVzZW50ZWQgYXMgZXJyb3IgZW50cmllcy4KICovCmV4cG9ydCBmdW5jdGlvbiB2YWxpZGF0ZVNpZ25JblBheWxvYWQoCiAgZW1haWxJbnB1dDogdW5rbm93biwKICBwYXNzd29yZElucHV0OiB1bmtub3duLAopOiBWYWxpZGF0aW9uUmVzdWx0IHsKICBjb25zdCBub3JtYWxpemVkRW1haWwgPSBub3JtYWxpemVFbWFpbChlbWFpbElucHV0KTsKICBjb25zdCBlcnJvcnM6IFZhbGlkYXRpb25FcnJvcltdID0gW107CgogIGNvbnN0IGVtYWlsRXJyb3IgPSB2YWxpZGF0ZUVtYWlsRmllbGQoZW1haWxJbnB1dCk7CiAgaWYgKGVtYWlsRXJyb3IpIHsKICAgIGVycm9ycy5wdXNoKHsgZmllbGRJZDogJ2VtYWlsJywgbWVzc2FnZTogZW1haWxFcnJvciB9KTsKICB9CgogIGNvbnN0IHBhc3N3b3JkRXJyb3IgPSB2YWxpZGF0ZVBhc3N3b3JkRmllbGQocGFzc3dvcmRJbnB1dCk7CiAgaWYgKHBhc3N3b3JkRXJyb3IpIHsKICAgIGVycm9ycy5wdXNoKHsgZmllbGRJZDogJ3Bhc3N3b3JkJywgbWVzc2FnZTogcGFzc3dvcmRFcnJvciB9KTsKICB9CgogIC8vIEhhcmQgY2FwIG9uIHRoZSBudW1iZXIgb2YgZXJyb3JzIHJldHVybmVkLiBUaGlzIGtlZXBzIHRoZSB1c2VyLXZpc2libGUKICAvLyBzdXJmYWNlIGJvdW5kZWQgZXZlbiBpZiB0aGUgZmllbGQgc2V0IGdyb3dzIGluIHRoZSBmdXR1cmUuCiAgY29uc3QgYm91bmRlZEVycm9ycyA9IGVycm9ycy5zbGljZSgwLCBNQVhfRVJST1JTKTsKCiAgcmV0dXJuIHsKICAgIHZhbGlkOiBib3VuZGVkRXJyb3JzLmxlbmd0aCA9PT0gMCwKICAgIGVycm9yczogYm91bmRlZEVycm9ycywKICAgIG5vcm1hbGl6ZWRFbWFpbCwKICB9Owp9CgovKioKICogU3RhYmxlIGlkZW50aXR5IGtleSBmb3IgYSBzaWduLWluIHBheWxvYWQuIFVzZWQgdG8gZGV0ZWN0IGR1cGxpY2F0ZQogKiBzdWJtaXNzaW9ucyB3aXRob3V0IGV4cG9zaW5nIHRoZSByYXcgcGFzc3dvcmQgaW4gbG9ncyBvciBzdGF0ZS4KICoKICogVGhlIGtleSBpcyBkZXRlcm1pbmlzdGljIGFuZCBjb2xsYXRpb24tcmVzaXN0YW50IGVub3VnaCBmb3IgZGVkdXBlIGNoZWNrczoKICogaXQgY29tYmluZXMgdGhlIG5vcm1hbGl6ZWQgZW1haWwgd2l0aCBhIG5vbi1jcnlwdG9ncmFwaGljIGZpbmdlcnByaW50IG9mCiAqIHRoZSBwYXNzd29yZC4gVGhlIGZpbmdlcnByaW50IGlzIG5vdCBhIHNlY3VyaXR5IGJvdW5kYXJ5IGFuZCBtdXN0IG5vdCBiZQogKiB0cmVhdGVkIGFzIG9uZS4KICovCmV4cG9ydCBmdW5jdGlvbiBzaWduSW5QYXlsb2FkS2V5KGVtYWlsSW5wdXQ6IHVua25vd24sIHBhc3N3b3JkSW5wdXQ6IHVua25vd24pOiBzdHJpbmcgewogIGNvbnN0IG5vcm1hbGl6ZWRFbWFpbCA9IG5vcm1hbGl6ZUVtYWlsKGVtYWlsSW5wdXQpOwogIGNvbnN0IHBhc3N3b3JkID0gdHlwZW9mIHBhc3N3b3JkSW5wdXQgPT09ICdzdHJpbmcnID8gcGFzc3dvcmRJbnB1dCA6ICcnOwogIHJldHVybiBgJHtub3JtYWxpemVkRW1haWx9Ojoke2ZpbmdlcnByaW50KHBhc3N3b3JkKX1gOwp9CgovKiogRGV0ZXJtaW5pc3RpYywgbm9uLWNyeXB0b2dyYXBoaWMgMzItYml0IGZpbmdlcnByaW50IChGTlYtMWEpLiAqLwpmdW5jdGlvbiBmaW5nZXJwcmludCh2YWx1ZTogc3RyaW5nKTogc3RyaW5nIHsKICBsZXQgaGFzaCA9IDB4ODExYzl9OwogIGZvciAobGV0IGkgPSAwOyBpIDwgdmFsdWUubGVuZ3RoOyBpKyspIHsKICAgIGhhc2ggXj0gdmFsdWUuY2hhckNvZGVBdChpKTsKICAgIGhhc2ggPSBNYXRoLmltdWwoaGFzaCwgMHgwMTAwMDE5Myk7CiAgfQogIHJldHVybiAoaGFzaCA+Pj4gMCkudG9TdHJpbmcoMTYpLnBhZFN0YXJ0KDgsICcwJyk7Cn0KCi8qKgogKiBUcmFjayB0aGUgbW9zdCByZWNlbnRseSBzdWJtaXR0ZWQgcGF5bG9hZCBrZXkgc28gZHVwbGljYXRlIHN1Ym1pc3Npb25zIGNhbgogKiBiZSBkZXRlY3RlZCB3aXRob3V0IGFkZGluZyBnbG9iYWwgbXV0YWJsZSBzdGF0ZSB0byB0aGUgdmFsaWRhdGlvbiBtb2R1bGUuCiAqCiAqIFRoZSB0cmFja2VyIGlzIGRlbGliZXJhdGVseSB0aW55IGFuZCBwdXJlOiBpdCBob2xkcyBhdCBtb3N0IG9uZSBrZXkgYW5kCiAqIGV4cG9zZXMgYSBzaW5nbGUgY29uc3VtZSBvcGVyYXRpb24uIENhbGxlcnMgb3duIHRoZSBsaWZldGltZSBvZiB0aGUKICogdHJhY2tlciwgd2hpY2gga2VlcHMgdGhlIG1vZHVsZSB0ZXN0YWJsZSBhbmQgZnJlZSBvZiBoaWRkZW4gc2lkZSBlZmZlY3RzLgogKi8KZXhwb3J0IGludGVyZmFjZSBEdXBsaWNhdGVUcmFja2VyIHsKICAvKiogUmV0dXJuIHRydWUgd2hlbiB0aGUga2V5IG1hdGNoZXMgdGhlIGxhc3QgY29uc3VtZWQga2V5LiAqLwogIGlzRHVwbGljYXRlKGtleTogc3RyaW5nKTogYm9vbGVhbjsKICAvKiogUmVjb3JkIGEga2V5IGFzIHRoZSBsYXRlc3Qgc3VibWlzc2lvbi4gKi8KICByZWNvcmQoa2V5OiBzdHJpbmcpOiB2b2lkOwogIC8qKiBGb3JnZXQgdGhlIGxhc3Qga2V5IChlLmcuIGFmdGVyIGEgc3VjY2Vzc2Z1bCBzdWJtaXQpLiAqLwogIHJlc2V0KCk6IHZvaWQ7Cn0KCi8qKiBDcmVhdGUgYSBmcmVzaCwgY2xvc3VyZS1zY29wZWQgZHVwbGljYXRlIHRyYWNrZXIuICovCmV4cG9ydCBmdW5jdGlvbiBjcmVhdGVEdXBsaWNhdGVUcmFja2VyKCk6IER1cGxpY2F0ZVRyYWNrZXIgewogIGxldCBsYXN0S2V5OiBzdHJpbmcgfCBudWxsID0gbnVsbDsKICByZXR1cm4gewogICAgaXNEdXBsaWNhdGUoa2V5OiBzdHJpbmcpIHsKICAgICAgcmV0dXJuIGxhc3RLZXkgIT09IG51bGwgJiYgbGFzdEtleSA9PT0ga2V5OwogICAgfSwKICAgIHJlY29yZChrZXk6IHN0cmluZykgewogICAgICBsYXN0S2V5ID0ga2V5OwogICAgfSwKICAgIHJlc2V0KCkgewogICAgICBsYXN0S2V5ID0gbnVsbDsKICAgIH0sCiAgfTsKfQo=
+/**
+ * Validation boundaries for the sign-in form (src/app/page.tsx).
+ *
+ * This module defines the canonical, side-effect-free validation layer for the
+ * sign-in form. It is the single source of truth for:
+ *
+ *   1. Accepted input (valid email + strong enough password).
+ *   2. Rejected input (malformed email, weak password, empty fields).
+ *   3. Duplicate submissions (identical payloads are deterministically deduped).
+ *   4. Boundary values (exact min/max lengths, whitespace only, Unicode length).
+*
+ * Invariants:
+ *   - Pure functions: no DOM, no timers, no network, no global mutable state.
+ *   - Deterministic: the same input always produces the same output.
+ *   - Normalization is explicit and limited to trimming email whitespace.
+ *   - Error messages never echo the raw input (no P-II / X-SS regressions).
+ */
+
+/** Maximum accepted email length (characters). */
+export const MAX_EMAIL_LENGTH = 254;
+
+/** Minimum accepted password length (characters). */
+export const MIN_PASSWORD_LENGTH = 8;
+
+/** Maximum accepted password length (characters). */
+export const MAX_PASSWORD_LENGTH = 128;
+
+/** Maximum number of distinct field errors returned for a single submit. */
+export const MAX_ERRORS = 2;
+
+/** Canonical field identifiers used by the form and the error summary.
+ */
+export type ValidationFieldId = 'email' | 'password';
+
+/** A single field-level validation error. */
+export interface ValidationError {
+  fieldId: ValidationFieldId;
+  message: string;
+}
+
+/** Result of a full form validation pass. */
+export interface ValidationResult {
+  /** True when the payload is accepted and no errors exist. */
+  valid: boolean;
+  /** Ordered, deduped errors (one per field). */
+  errors: ValidationError[];
+  /** Normalized email (trimmed), safe to display or persist. */
+  normalizedEmail: string;
+}
+
+/**
+ * RfC 5322-like email pattern. Intentionally conservative:
+ *   - Exactly one `@`, no leading/trailing dots in the local part.
+ *   - Domain labels are alphanumeric with hyphens, not leading/trailing hyphens.
+ *   - TLS at least two letters.
+ * This is a format gate, not an authority on deliverability.
+ */
+const EMAIL_PATTERN =
+  /^[A-Za-z0-9^!#$%&'*+/=_`{|}~-]+(?:\.[A-Za-z0-9^!#$%&'*+/=_`{|}~-]+)*@[A-Za-z0-9](?:[A-Za-z0-9]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9]*[A-Za-z0-9])?)*\.[A-Za-z]{2,}$/;
+
+/**
+ * Normalize an email by trimming surrounding whitespace and lowercasing the
+ * domain part only. The local part is case-sensitive per RFC 5322 and is preserved
+ * verbatim. No other transformations are applied.
+ */
+export function normalizeEmail(raw: unknown): string {
+  if (typeof raw !== 'string') return '';
+  const trimmed = raw.trim();
+  const atIndex = trimmed.lastIndexOf('@');
+  if (atIndex == -1) return trimmed;
+  const local = trimmed.slice(0, atIndex);
+  const domain = trimmed.slice(atIndex + 1);
+  return `${local}@${domain.toLowerCase()}`;
+}
+
+/**
+ * Return the Unicode code-point length of a string. Using code points rather
+ * than UTF-16 code units means astral symbols (e.g. emoji) count as one
+ * character, matching user perception and the browser's maxLength semantics.
+ */
+export function countCodePoints(value: string): number {
+  return Array.from(value).length;
+}
+
+/** True when the value is a non-empty string after trimming. */
+function hasContent(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+/** Validate the email field and return an error message or null. */
+export function validateEmailField(raw: unknown): string | null {
+  if (!hasContent(raw)) {
+    return 'Email is required.';
+  }
+
+  const normalized = normalizeEmail(raw);
+
+  if (countCodePoints(normalized) > MAX_EMAIL_LENGTH) {
+    return `Email must be at most ${MAX_EMAIL_LENGTH} characters.`;
+  }
+
+  if (!EMAIL_PATTERN.test(normalized)) {
+    return 'Enter a valid email address.';
+  }
+
+  return null;
+}
+
+/**
+ * Validate the password field and return an error message or null.
+ *
+ * Note: we do not trim passwords. Whitespace is a legitimate password character,
+ * and trimming would silently alter the secret the user intended to submit.
+ */
+export function validatePasswordField(raw: unknown): string | null {
+  if (typeof raw !== 'string' || raw.length === 0) {
+    return 'Password is required.';
+  }
+
+  const length = countCodePoints(raw);
+
+  if (length < MIN_PASSWORD_LENGTH) {
+    return `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`;
+  }
+
+  if (length > MAX_PASSWORD_LENGTH) {
+    return `Password must be at most ${MAX_PASSWORD_LENGTH} characters.`;
+  }
+
+  return null;
+}
+
+/**
+ * Validate the full sign-in payload.
+ *
+ * Behavior:
+ *   - Returns a deterministic, deduplicated, field-ordered error list.
+ *   - Coerces non-string inputs to empty strings so a compromised caller cannot
+ *     smuggle objects or nulls through the boundary.
+ *   - Never throws; all failure modes are represented as error entries.
+ */
+export function validateSignInPayload(
+  emailInput: unknown,
+  passwordInput: unknown,
+): ValidationResult {
+  const normalizedEmail = normalizeEmail(emailInput);
+  const errors: ValidationError[] = [];
+
+  const emailError = validateEmailField(emailInput);
+  if (emailError) {
+    errors.push({ fieldId: 'email', message: emailError });
+  }
+
+  const passwordError = validatePasswordField(passwordInput);
+  if (passwordError) {
+    errors.push({ fieldId: 'password', message: passwordError });
+  }
+
+  // Hard cap on the number of errors returned. This keeps the user-visible
+  // surface bounded even if the field set grows in the future.
+  const boundedErrors = errors.slice(0, MAX_ERRORS);
+
+  return {
+    valid: boundedErrors.length === 0,
+    errors: boundedErrors,
+    normalizedEmail,
+  };
+}
+
+/**
+ * Stable identity key for a sign-in payload. Used to detect duplicate
+ * submissions without exposing the raw password in logs or state.
+ *
+ * The key is deterministic and collation-resistant enough for dedupe checks:
+ * it combines the normalized email with a non-cryptographic fingerprint of
+ * the password. The fingerprint is not a security boundary and must not be
+ * treated as one.
+ */
+export function signInPayloadKey(emailInput: unknown, passwordInput: unknown): string {
+  // Lowercased across the whole address, not just the domain.
+  //
+  // `normalizeEmail` deliberately preserves the local part's case, because it also
+  // feeds display and the local part is technically case-sensitive. A throttle key
+  // has a different requirement: two spellings of the same address must land in
+  // the same bucket, or the throttle is bypassed simply by changing case. The
+  // fingerprint is non-cryptographic and is never used for authentication.
+  const normalizedEmail = normalizeEmail(emailInput).toLowerCase();
+  const password = typeof passwordInput === 'string' ? passwordInput : '';
+  return `${normalizedEmail}::${fingerprint(password)}`;
+}
+
+/** Deterministic, non-cryptographic 32-bit fingerprint (FNV-1a). */
+function fingerprint(value: string): string {
+  let hash = 0x811c9dc;
+  for (let i = 0; i < value.length; i++) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+/**
+ * Track the most recently submitted payload key so duplicate submissions can
+ * be detected without adding global mutable state to the validation module.
+ *
+ * The tracker is deliberately tiny and pure: it holds at most one key and
+ * exposes a single consume operation. Callers own the lifetime of the
+ * tracker, which keeps the module testable and free of hidden side effects.
+ */
+export interface DuplicateTracker {
+  /** Return true when the key matches the last consumed key. */
+  isDuplicate(key: string): boolean;
+  /** Record a key as the latest submission. */
+  record(key: string): void;
+  /** Forget the last key (e.g. after a successful submit). */
+  reset(): void;
+}
+
+/** Create a fresh, closure-scoped duplicate tracker. */
+export function createDuplicateTracker(): DuplicateTracker {
+  let lastKey: string | null = null;
+  return {
+    isDuplicate(key: string) {
+      return lastKey !== null && lastKey === key;
+    },
+    record(key: string) {
+      lastKey = key;
+    },
+    reset() {
+      lastKey = null;
+    },
+  };
+}

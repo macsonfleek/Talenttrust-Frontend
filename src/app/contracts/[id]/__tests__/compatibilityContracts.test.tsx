@@ -370,9 +370,10 @@ describe('Compatibility contracts — src/app/contracts/[id]/page.tsx', () => {
       await renderPage();
 
       await user.click(await clickEnabledButton(/open a dispute for this contract/i));
-      const textarea = await screen.findByRole('textbox', { name: /reason/i });
-      await user.type(textarea, 'Payment not received');
-      await user.click(screen.getByRole('button', { name: /^confirm dispute$/i }));
+      // The page renders ActionPanel with disputeFlow="confirm", so the reason
+      // is collected by the confirmation dialog rather than an inline form.
+      const disputeDialog = await screen.findByRole('alertdialog', { name: /confirm dispute/i });
+      await user.click(within(disputeDialog).getByRole('button', { name: /^dispute$/i }));
 
       expect(within(getContractSummarySection()).getByLabelText('Status: Disputed')).toBeInTheDocument();
       expect(await screen.findByText('Dispute opened')).toBeInTheDocument();
@@ -620,9 +621,16 @@ describe('Compatibility contracts — src/app/contracts/[id]/page.tsx', () => {
 
       await renderPage(BASE_CONTRACT.id);
 
-      await waitFor(() => {
-        expect(screen.getByText('This data may be outdated. Last updated recently.')).toBeInTheDocument();
-      });
+      // A generic failure is retryable, so the page burns its bounded retry
+      // budget (300ms + 600ms of backoff) before falling back to cache.
+      await waitFor(
+        () => {
+          expect(
+            screen.getByText('This data may be outdated. Last updated recently.'),
+          ).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
       const submitBtn = screen.getByRole('button', { name: /submit milestone/i });
       expect(submitBtn).toBeDisabled();

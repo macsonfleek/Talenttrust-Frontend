@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ContractsPage from '../page';
 import * as repository from '@/lib/repository';
 import * as stellarAddress from '@/lib/stellarAddress';

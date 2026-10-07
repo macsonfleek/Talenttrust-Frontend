@@ -63,6 +63,9 @@ afterEach(() => {
 // ---------------------------------------------------------------------------
 
 describe('sitemap.ts', () => {
+  /** Warnings captured from the injected reporter for the current test. */
+  let warnings: string[] = [];
+
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...originalEnv };

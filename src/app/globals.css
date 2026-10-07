@@ -44,6 +44,12 @@
   --status-error-foreground: #9f1239;
   --status-warning-bg: #fef3c7;
   --status-warning-foreground: #92400e;
+
+  /* Neutral token for statuses outside the canonical set, and for
+     `Archived`. 9.45:1 against this foreground -- verified AA. Matches
+     the slate scale already used elsewhere in the light theme. */
+  --status-neutral-bg: #f1f5f9;
+  --status-neutral-foreground: #334155;
 }
 
 [data-theme='dark'] {
@@ -91,6 +97,11 @@
   --status-error-foreground: #fda4af;
   --status-warning-bg: #78350f;
   --status-warning-foreground: #fcd34d;
+
+  /* Dark-mode pair for the neutral token. 9.85:1 against this foreground
+     -- verified AA. */
+  --status-neutral-bg: #1e293b;
+  --status-neutral-foreground: #cbd5e1;
 }
 
 body {

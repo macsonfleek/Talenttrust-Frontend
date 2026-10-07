@@ -18,6 +18,45 @@
  *   renders (e.g. React StrictMode double-invoking), since it holds no mutable
  *   state and performs no side effects.
  */
+/**
+ * Accessible name announced while escrow progress is loading.
+ *
+ * Invariant: a single constant so the loading announcement is byte-identical on
+ * every render, which is what makes repeated / concurrent renders of this
+ * stateless placeholder observably idempotent.
+ */
+const CONTRACT_PROGRESS_LOADING_LABEL = 'Loading escrow progress';
+
+/**
+ * Id of the heading rendered by the live `ContractProgress` component.
+ *
+ * Referenced (not rendered) by the loading placeholder so the accessible name
+ * is derived the same way in both states.
+ */
+export const CONTRACT_PROGRESS_HEADING_ID = 'contract-progress-title';
+
+/**
+ * A single decorative placeholder bar.
+ *
+ * Mirrors `components/Skeleton.tsx` but takes a raw class string, because this
+ * placeholder mirrors fixed shapes from `ContractProgress` (heading row,
+ * progress bar, two fund cards) rather than a generic width/height API.
+ *
+ * Invariants:
+ *  - Always `aria-hidden="true"`: the surrounding `<section>` owns the
+ *    accessible name, so exposing the blocks would add noise.
+ *  - Carries `motion-reduce:animate-none` alongside the project-wide
+ *    `prefers-reduced-motion` rule (belt and suspenders).
+ */
+const SkeletonBlock = ({ className }: { className: string }) => (
+  <div
+    aria-hidden="true"
+    className={['animate-pulse', 'motion-reduce:animate-none', className]
+      .filter(Boolean)
+      .join(' ')}
+  />
+);
+
 interface ContractProgressSkeletonProps {
   hasError?: boolean;
   onRetry?: () => void;
@@ -56,9 +95,15 @@ export const ContractProgressSkeleton = ({
   return (
     <section
       aria-busy="true"
+      // INV-2: `aria-labelledby` points at the id the live `ContractProgress`
+      // heading will use, so the region's accessible name is computed the same
+      // way before and after the loading → loaded swap. While that element does
+      // not exist, the accname algorithm falls back to `aria-label`, so the name
+      // is never empty and never changes.
+      aria-labelledby={CONTRACT_PROGRESS_HEADING_ID}
       aria-label={CONTRACT_PROGRESS_LOADING_LABEL}
       data-testid="contract-progress-skeleton"
-      className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm animate-pulse"
+      className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm animate-pulse motion-reduce:animate-none"
     >
       {/* Heading */}
       <SkeletonBlock className="h-7 w-40 rounded-lg bg-slate-200" />

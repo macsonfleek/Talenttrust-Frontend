@@ -1,7 +1,7 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
-import GlobalError, { ErrorBoundary, ErrorPage } from './error';
+import { render, screen, fireEvent } from '@testing-library/react';
+import GlobalError from './error';
 import { setErrorReporter } from '../lib/errorReporter';
-import { testA11y } from '../test-utils/a11y';
+import '@testing-library/jest-dom';
 
 // ---------------------------------------------------------------------------
 // Setup / teardown
@@ -10,7 +10,6 @@ import { testA11y } from '../test-utils/a11y';
 beforeEach(() => {
   jest.spyOn(console, 'error').mockImplementation(() => {});
   setErrorReporter(null);
-  originalNodeEnv = process.env.NODE_ENV;
 });
 
 afterEach(() => {
@@ -22,6 +21,9 @@ afterEach(() => {
     process.env.NODE_ENV = originalNodeEnv;
   }
 });
+
+// Captured before any test mutates NODE_ENV, so teardown can restore it exactly.
+const originalNodeEnv = process.env.NODE_ENV;
 
 const testError = Object.assign(new Error('Something broke'), { digest: undefined });
 const mockReset = jest.fn();
@@ -61,7 +63,7 @@ describe('Error page — baseline rendering', () => {
   it('renders Go Home and Contact Support links', () => {
     renderError();
     expect(screen.getByRole('link', { name: /go home/i })).toHaveAttribute('href', '/');
-    expect(screen.getByRole('link', { name: /contact support/i })).toBeInDocument();
+    expect(screen.getByRole('link', { name: /contact support/i })).toBeInTheDocument();
   });
 
   it('renders a Try Again button on first render', () => {
@@ -272,8 +274,6 @@ describe('Error page — retry cap', () => {
 
 describe('Error page — concurrent reset guard', () => {
   it('does not invoke reset() a second time while a previous call is in flight', () => {
-    // Simulate an async reset that doesn't return immediately.
-    let resolveReset!: () => void;
     const asyncReset = jest.fn(() => {
       // The reset function starts but doesn't complete synchronously.
       // We model this by holding the ref state artificially:
@@ -366,14 +366,14 @@ describe('Error page — boundary cases', () => {
   describe('validation boundaries', () => {
     it('accepts a valid Error instance and renders the fallback UI', () => {
       render(<GlobalError error={testError} reset={mockReset} />);
-      expect(screen.getBuRonByRole('button', { name: /try again/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
     });
 
     it('rejects null error without throwing and still renders a recoverable UI', () => {
       const nullError = null as unknown as Error;
       expect(() => render(<GlobalError error={nullError} reset={mockReset} />)).not.toThrow();
       expect(screen.getByRole('heading', { name: /unexpected error/i })).toBeInTheDocument();
-      expect(screen.getByButtonRole('button', { name: /try again/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
     });
 
     it('rejects undefined error without throwing and still renders a recoverable UI', () => {
@@ -386,7 +386,7 @@ describe('Error page — boundary cases', () => {
       const primitive = 'secret-string' as unknown as Error;
       render(<GlobalError error={primitive} reset={mockReset} />);
       expect(screen.queryByText(/secret-string/i)).not.toBeInTheDocument();
-      expect(screen.getByButtonRole('button', { name: /try again/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
     });
 
     it('rejects a plain object without a message without throwing', () => {
@@ -399,15 +399,15 @@ describe('Error page — boundary cases', () => {
       const mockReporter = jest.fn();
       setErrorReporter(mockReporter);
 
-      const { unrmount } = render(<GlobalError error={testError} reset={mockReset} />);
-      unrmount();
+      const { unmount } = render(<GlobalError error={testError} reset={mockReset} />);
+      unmount();
       render(<GlobalError error={testError} reset={mockReset} />);
 
       // Each mount is a distinct reporting event; the reporter must not be called
       // more than once per mount and must receive the same error identity.
       expect(mockReporter).toHaveBeenCalledTimes(2);
-      expect(mockReporter).new.calls[0][0]).toBe(testError);
-      expect(mockReporter).new.calls[1][0]).toBe(testError);
+      expect(mockReporter.mock.calls[0][0]).toBe(testError);
+      expect(mockReporter.mock.calls[1][0]).toBe(testError);
     });
 
     it('does not call the reporter twice for a single mount', () => {
@@ -439,7 +439,7 @@ describe('Error page — boundary cases', () => {
       render(<GlobalError error={digestError} reset={mockReset} />);
 
       expect(mockReporter).toHaveBeenCalledWith(digestError, 'Error Boundary', undefined, undefined);
-      expect(screen.queryByText(/abc123/i)).not.toBeInDocument();
+      expect(screen.queryByText(/abc123/i)).not.toBeInTheDocument();
     });
 
     it('does not log to console in production but still reports', () => {
@@ -458,7 +458,7 @@ describe('Error page — boundary cases', () => {
       const throwingReporter = jest.fn(() => {
         throw new Error('reporter failed');
       });
-      setErrorReporter(throwingreporter);
+      setErrorReporter(throwingReporter);
 
       expect(() => render(<GlobalError error={testError} reset={mockReset} />)).not.toThrow();
       expect(screen.getByRole('heading', { name: /unexpected error/i })).toBeInTheDocument();
@@ -468,7 +468,7 @@ describe('Error page — boundary cases', () => {
     it('invokes reset exactly once per click even when clicked repeatedly', () => {
       const reset = jest.fn();
       render(<GlobalError error={testError} reset={reset} />);
-      const button = screen.getByButtonRole('button', { name: /try again/i });
+      const button = screen.getByRole('button', { name: /try again/i });
 
       fireEvent.click(button);
       fireEvent.click(button);

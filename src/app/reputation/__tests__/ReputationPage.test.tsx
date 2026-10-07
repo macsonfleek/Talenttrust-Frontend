@@ -1,11 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ReputationPage from '../page';
 import {
   REPUTATION_MAX_SCORE,
   validateReputationData,
 } from '@/lib/validateReputationData';
-import { listReputationEvents } from '@/lib/repository';
+import { STORAGE_KEY } from '@/lib/repository';
 import { reportError } from '@/lib/errorReporter';
 
 jest.mock('../loading', () => {
@@ -18,17 +18,47 @@ jest.mock('../loading', () => {
   };
 });
 
+// The route imports both the content component and `shapeReputationData` from
+// this module, so the mock has to cover its whole public surface: stubbing only
+// the component would leave the shaping helper undefined in the route and fail
+// for a reason that has nothing to do with what this suite tests.
+// The route imports both the content component and `shapeReputationData` from
+// this module, so the mock must cover its whole public surface — stubbing only
+// the component leaves the shaping helper undefined inside the route, failing
+// for a reason unrelated to what this suite exercises.
+//
+// `shapeReputationData` is mirrored here rather than pulled in with
+// `requireActual`: the content module transitively imports the profile component,
+// and re-evaluating it inside the mock factory collides with this file's hoisted
+// React bindings. The real implementation is covered directly by
+// `__tests__/page-contracts.test.tsx`.
 jest.mock('../ReputationPageContent', () => ({
+  REPUTATION_DEMO_SCORE: 4.5,
+  shapeReputationData: (history: unknown[]) => ({
+    score: 4.5,
+    level: 'Excellent',
+    history,
+  }),
+  normalizeReputationPageInput: (reputationData: unknown) => ({
+    reputationData: reputationData ?? null,
+    userName: 'User',
+  }),
   ReputationPageContent: ({
     reputationData,
+    children,
   }: {
     reputationData: { score?: number | null; history?: unknown[] } | null;
+    // `children` carries the route's loading / recovery regions. They must be
+    // rendered here, otherwise the stub silently swallows the alert this suite
+    // asserts on and every recovery test fails for the wrong reason.
+    children?: React.ReactNode;
   }) => (
     <div data-testid="reputation-page-content">
       <span data-testid="content-score">{reputationData?.score ?? 'null'}</span>
       <span data-testid="content-history-length">
         {reputationData?.history?.length ?? 0}
       </span>
+      {children}
     </div>
   ),
 }));
@@ -41,8 +71,6 @@ jest.mock('@/lib/errorReporter', () => ({
   reportError: jest.fn(),
 }));
 
-const mockListReputationEvents =
-  listReputationEvents as jest.MockedFunction<typeof listReputationEvents>;
 const mockReportError =
   reportError as jest.MockedFunction<typeof reportError>;
 
@@ -51,13 +79,15 @@ const validEvent = {
   type: 'Review',
   summary: 'Positive review',
   date: '2026-09-01',
-  version: 0,
+  // version starts at 1: `readReputationHistory` rejects a version below 1 as
+  // corrupt, so a 0 here would turn every route case into an invalid-data
+  // failure rather than exercising the valid path.
+  version: 1,
 };
 
 beforeEach(() => {
   jest.clearAllMocks();
   jest.spyOn(console, 'error').mockImplementation(() => {});
-  mockListReputationEvents.mockReturnValue([]);
 });
 
 afterEach(() => {
@@ -181,21 +211,37 @@ describe('validateReputationData', () => {
 });
 
 describe('ReputationPage route', () => {
-  it('renders the empty result through the canonical content boundary', async () => {
-    mockListReputationEvents.mockReturnValue([]);
+  // The route reads through `readReputationHistory` (a strict, read-only
+  // localStorage snapshot) rather than the repository list helper, so these
+  // cases seed storage directly. `__tests__/recovery.test.tsx` covers the
+  // retention / StrictMode / concurrency matrix in depth; this block pins the
+  // boundaries most likely to regress: empty, valid, corrupt, and non-leakage
+  // of the underlying error.
+  const seed = (history: unknown) =>
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ reputationEvents: history, contracts: [{ id: 'keep' }] }),
+    );
 
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('renders the empty result through the canonical content boundary', async () => {
     render(<ReputationPage />);
 
     await waitFor(() => {
       expect(screen.getByTestId('reputation-page-content')).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId('content-score')).toHaveTextContent('null');
+    expect(screen.getByTestId('content-score')).toHaveTextContent('4.5');
     expect(screen.getByTestId('content-history-length')).toHaveTextContent('0');
+    // An empty store is a successful read, not a failure.
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('passes validated history to the canonical content boundary', async () => {
-    mockListReputationEvents.mockReturnValue([validEvent]);
+    seed([validEvent]);
 
     render(<ReputationPage />);
 
@@ -208,7 +254,7 @@ describe('ReputationPage route', () => {
   });
 
   it('rejects corrupt history into the safe error state', async () => {
-    mockListReputationEvents.mockReturnValue([
+    seed([
       { ...validEvent, id: 'evt-1' },
       { ...validEvent, id: 'evt-1', summary: 'Duplicate' },
     ]);
@@ -219,18 +265,25 @@ describe('ReputationPage route', () => {
       expect(screen.getByRole('alert')).toBeInTheDocument();
     });
 
-    expect(
-      screen.getByText('Unable to load your reputation data. Please try again.'),
-    ).toBeInTheDocument();
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('Saved reputation history is invalid');
+    // C3: the corrupt dataset is withheld entirely rather than partially shown.
     expect(screen.queryByTestId('reputation-page-content')).not.toBeInTheDocument();
-    expect(screen.getByText('Unable to load your reputation data. Please try again.')).not.toHaveTextContent('evt-1');
+    // C6: no event payload reaches the UI.
+    expect(alert).not.toHaveTextContent('evt-1');
+    expect(alert).not.toHaveTextContent('Duplicate');
     expect(mockReportError).toHaveBeenCalledTimes(1);
+    expect(mockReportError).toHaveBeenCalledWith(
+      new Error('Reputation history read failed'),
+      'ReputationPage.load',
+      'error',
+      { reason: 'invalid-data' },
+    );
   });
 
   it('does not expose the raw repository error to the user', async () => {
-    const rawError = new Error('sensitive storage failure');
-    mockListReputationEvents.mockImplementation(() => {
-      throw rawError;
+    jest.spyOn(window.localStorage, 'getItem').mockImplementationOnce(() => {
+      throw new Error('sensitive storage failure');
     });
 
     render(<ReputationPage />);
@@ -240,42 +293,51 @@ describe('ReputationPage route', () => {
     });
 
     expect(screen.queryByText('sensitive storage failure')).not.toBeInTheDocument();
+    expect(screen.getByRole('alert')).not.toHaveTextContent('sensitive storage failure');
     expect(mockReportError).toHaveBeenCalledWith(
-      rawError,
-      'ReputationPage.loadReputation',
+      new Error('Reputation history read failed'),
+      'ReputationPage.load',
+      'error',
+      { reason: 'storage-unavailable' },
     );
   });
 
   it('does not update state after the route unmounts during a load', async () => {
-    const original = mockListReputationEvents.getMockImplementation();
-
-    mockListReputationEvents.mockImplementationOnce(
-      () => new Promise(() => undefined) as never,
-    );
+    let finish!: (value: unknown) => void;
+    const pending = new Promise((resolve) => {
+      finish = resolve;
+    });
+    jest
+      .spyOn(require('@/lib/readReputationHistory'), 'readReputationHistory')
+      .mockReturnValueOnce(pending);
 
     const { unmount } = render(<ReputationPage />);
+    await act(async () => {
+      await Promise.resolve();
+    });
     unmount();
 
-    await Promise.resolve();
+    await act(async () => finish([validEvent]));
 
+    // C2: neither state nor diagnostics after unmount.
     expect(mockReportError).not.toHaveBeenCalled();
-    mockListReputationEvents.mockImplementation(original ?? (() => []));
   });
 
   it('recovers from a failed load when Retry is clicked', async () => {
-    mockListReputationEvents
-      .mockImplementationOnce(() => {
-        throw new Error('temporary storage failure');
-      })
-      .mockReturnValueOnce([validEvent]);
+    jest.spyOn(window.localStorage, 'getItem').mockImplementationOnce(() => {
+      throw new Error('temporary storage failure');
+    });
+    seed([validEvent]);
 
     render(<ReputationPage />);
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Retry reputation history' }),
+      ).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Retry reputation history' }));
 
     await waitFor(() => {
       expect(screen.getByTestId('reputation-page-content')).toBeInTheDocument();

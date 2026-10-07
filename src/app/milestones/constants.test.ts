@@ -21,9 +21,9 @@ describe('milestone constants', () => {
   });
 
   it('provides sample milestones that satisfy all invariants', () => {
-    expect(SAMPLE_MILESTONES.length).beGreaterThan(0);
+    expect(SAMPLE_MILESTONES.length).toBeGreaterThan(0);
     for (const milestone of SAMPLE_MILESTONES) {
-      expect(validateMilestoneInvariants(milestone)).equal([]);
+      expect(validateMilestoneInvariants(milestone)).toEqual([]);
     }
   });
 
@@ -127,7 +127,7 @@ describe('getStatusIndex', () => {
   });
 
   it('matches the canonical order constant', () => {
-    MILESTONE_STATUS_ORDER\forEach((status, index) => {
+    MILESTONE_STATUS_ORDER.forEach((status, index) => {
       expect(getStatusIndex(status)).toBe(index);
     });
   });
@@ -164,12 +164,12 @@ describe('validateMilestoneInvariants', () => {
   };
 
   it('returns no violations for a valid milestone', () => {
-    expect(validateMilestoneInvariants(base)).equal([]);
+    expect(validateMilestoneInvariants(base)).toEqual([]);
   });
 
   it('reports a missing id as a violation', () => {
     const violations = validateMilestoneInvariants({ ...base, id: '' });
-    expect(violations.length).beGreaterThan(0);
+    expect(violations.length).toBeGreaterThan(0);
   });
 
   it('reports an unknown status as a violation', () => {

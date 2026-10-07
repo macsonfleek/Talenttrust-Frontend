@@ -53,7 +53,7 @@ import type { WalletItem } from '@/types/domain';
  *   {@link getSampleWalletItems}, which returns fresh, de-duplicated copies.
  */
 const RAW_SAMPLE_WALLET_ITEMS: WalletItem[] = [
-  {
+  Object.freeze({
     id: 'w-1',
     name: 'Stellar Lumens (XLM)',
     type: 'Native Asset',
@@ -62,7 +62,7 @@ const RAW_SAMPLE_WALLET_ITEMS: WalletItem[] = [
     address: 'GAAQCAIBAEAQCAIBAEAQCAIBAEAQCAIBAEAQCAIBAEAQCAIBAEAQCAIQ',
     status: 'Active',
     createdAt: '2026-01-15',
-  } as WalletItem),
+  }),
   Object.freeze({
     id: 'w-2',
     name: 'USD Coin (USDC)',
@@ -72,7 +72,7 @@ const RAW_SAMPLE_WALLET_ITEMS: WalletItem[] = [
     address: 'GBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     status: 'Active',
     createdAt: '2026-02-01',
-  } as WalletItem),
+  }),
   Object.freeze({
     id: 'w-3',
     name: 'Escrow Lock Key #402',
@@ -81,7 +81,7 @@ const RAW_SAMPLE_WALLET_ITEMS: WalletItem[] = [
     currency: 'KEY',
     status: 'Pending',
     createdAt: '2026-03-10',
-  } as WalletItem),
+  }),
   Object.freeze({
     id: 'w-4',
     name: 'Archived Client Token',
@@ -90,7 +90,7 @@ const RAW_SAMPLE_WALLET_ITEMS: WalletItem[] = [
     currency: 'ACT',
     status: 'Archived',
     createdAt: '2025-11-20',
-  } as WalletItem),
+  }),
 ];
 
 // Deep-freeze so the seed can never drift between mounts. WalletItem is a flat

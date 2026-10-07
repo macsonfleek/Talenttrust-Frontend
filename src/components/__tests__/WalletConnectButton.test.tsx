@@ -203,6 +203,12 @@ describe('WalletConnectButton', () => {
       value: { writeText },
     });
 
+    // Force the fallback to fail as well: with both copy paths unavailable the
+    // hook must report a failure. The global execCommand stub succeeds, so
+    // without this the success path would be taken and this assertion would
+    // never be reached.
+    jest.spyOn(document, 'execCommand').mockReturnValue(false);
+
     mockUseWallet.mockReturnValue(createWalletState({ address }));
 
     render(<WalletConnectButton />);
@@ -232,6 +238,12 @@ describe('WalletConnectButton', () => {
       configurable: true,
       value: undefined,
     });
+
+    // Force the fallback to fail as well: with both copy paths unavailable the
+    // hook must report a failure. The global execCommand stub succeeds, so
+    // without this the success path would be taken and this assertion would
+    // never be reached.
+    jest.spyOn(document, 'execCommand').mockReturnValue(false);
 
     mockUseWallet.mockReturnValue(createWalletState({ address }));
 

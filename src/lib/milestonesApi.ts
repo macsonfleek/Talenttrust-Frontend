@@ -109,7 +109,7 @@ function normalizeProgress(value: unknown): number {
   return 0;
 }
 
-function normalizeMilestone(value: unknown, index: number): Milestone | null {
+function normalizeMilestone(value: unknown): Milestone | null {
   if (!isRecord(value)) return null;
 
   const id = typeof value.id === 'string' && value.id.length > 0 ? value.id : null;
@@ -136,7 +136,7 @@ function normalizeMilestone(value: unknown, index: number): Milestone | null {
       typeof value.updatedAt === 'string' && value.updatedAt.length > 0
         ? value.updatedAt
         : new Date(0).toISOString(),
-  } || null;
+  };
 }
 
 function extractItems(value: unknown): unknown[] {
@@ -152,7 +152,7 @@ function normalizePayload(value: unknown): Milestone[] {
   const items = extractItems(value);
   const normalized: Milestone[] = [];
   for (let index = 0; index < items.length; index += 1) {
-    const next = normalizeMilestone(items[index], index);
+    const next = normalizeMilestone(items[index]);
     if (next) {
       normalized.push(next);
     }

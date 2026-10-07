@@ -1,1 +1,194 @@
-LyoqCiAqIFZhbGlkYXRpb24gYm91bmRhcmllcyBmb3IgY29udHJhY3Qgcm91dGUgcGFyYW1ldGVycyBhbmQgbG9hZGluZyBzdGF0ZS4KICoKICogVGhpcyBtb2R1bGUgZGVmaW5lcyB0aGUgY2Fub25pY2FsLCBkZXRlcm1pbmlzdGljIHZhbGlkYXRpb24gcnVsZXMgdXNlZCBieQogKiBgc3JjL2FwcC9jb250cmFjdHMvW2lkXS9sb2FkaW5nLnRzeGAgYW5kIGFueSBvdGhlciBjb25zdW1lciB0aGF0IG5lZWRzIHRvCiAqIGRlY2lkZSB3aGV0aGVyIGEgY29udHJhY3QgaWRlbnRpZmllciBpcyB3ZWxsLWZvcm1lZCBiZWZvcmUgZmV0Y2hpbmcgb3IKICogcmVuZGVyaW5nIGRhdGEuCiAqCiAqIEludmFyaWFudHM6CiAqICAgMS4gQSBjb250cmFjdCBpZCBpcyBlaXRoZXIgdmFsaWQgb3IgaW52YWxpZDsgdGhlcmUgaXMgbm8gInBhcnRpYWxseQogKiAgICAgIHZhbGlkIiBzdGF0ZS4gQ29uc3VtZXJzIG11c3QgbmV2ZXIgcHJvY2VlZCB3aXRoIGFuIGludmFsaWQgaWQuCiAqICAgMi4gVmFsaWRhdGlvbiBpcyBwdXJlIGFuZCBkZXRlcm1pbmlzdGljOiB0aGUgc2FtZSBpbnB1dCBhbHdheXMgcHJvZHVjZXMKICogICAgICB0aGUgc2FtZSByZXN1bHQsIHdpdGggbm8gSS9PLCB0aW1lcnMsIG9yIGdsb2JhbCBtdXRhYmxlIHN0YXRlLgogKiAgIDMuIFZhbGlkYXRpb24gbmV2ZXIgdGhyb3dzIGZvciBhbnkgaW5wdXQ7IGl0IHJldHVybnMgYSBkaXNjcmltaW5hdGVkCiAqICAgICAgcmVzdWx0IHNvIGNhbGxlcnMgY2FuIGhhbmRsZSByZWplY3Rpb24gd2l0aG91dCB0cnkvY2F0Y2guCiAqICAgNC4gRHVwbGljYXRlIGlkcyBhcmUgZGV0ZWN0ZWQgZXhwbGljaXRseSBhbmQgcmVwb3J0ZWQgYXMgYSBkaXN0aW5jdAogKiAgICAgIHJlYXNvbiBzbyB0aGUgY2FsbGVyIGNhbiBzdXJmYWNlIGFuIGFwcHJvcHJpYXRlIG1lc3NhZ2UuCiAqICAgNS4gQm91bmRhcnkgdmFsdWVzIChsZW5ndGggbGltaXRzLCBhbGxvd2VkIGNoYXJhY3RlcnMpIGFyZSBlbmZvcmNlZAogKiAgICAgIGluY2x1c2l2ZWx5IGFuZCBkb2N1bWVudGVkIGluIHRoZSBjb25zdGFudHMgYmVsb3cuCiAqLwoKLyoqIE1pbmltdW0gYWNjZXB0ZWQgbGVuZ3RoIGZvciBhIGNvbnRyYWN0IGlkLiAqLwpleHBvcnQgY29uc3QgQ09OVFJBQ1RfSURfTUlOX0xFTkdUSCA9IDE7CgovKiogTWF4aW11bSBhY2NlcHRlZCBsZW5ndGggZm9yIGEgY29udHJhY3QgaWQuICovCmV4cG9ydCBjb25zdCBDT05UUkFDVF9JRF9NQVhfTEVOR1RIID0gMTI4OwoKLyoqCiAqIEFsbG93ZWQgY2hhcmFjdGVyIHNldCBmb3IgY29udHJhY3QgaWRzLiBUaGlzIGlzIGRlbGliZXJhdGVseSBjb25zZXJ2YXRpdmU6CiAqIGxvd2VyY2FzZSBsZXR0ZXJzLCBkaWdpdHMsIGh5cGhlbnMsIGFuZCB1bmRlcnNjb3Jlcy4gVGhpcyBwcmV2ZW50cyBwYXRoCiAqIHRyYXZlcnNhbCwgZW5jb2RpbmcgdHJpY2tzLCBhbmQgYWNjaWRlbnRhbCBVUkkgc2VnbWVudCBpbmplY3Rpb24uCiAqLwpleHBvcnQgY29uc3QgQ09OVFJBQ1RfSURfUEFUVEVSTiA9IC9eW2EtejAtOV8tXSskLzsKCi eighteGV4cG9ydCB0eXBlIENvbnRyYWN0SWRWYWxpZGF0aW9uUmVhc29uID0KICB8ICJlbXB0eSIKICB8ICJ0b29fc2hvcnQiCiAgfCAidG9vX2xvbmciCiAgfCAiaW52YWxpZF9jaGFyYWN0ZXJzIgogIHwgImR1cGxpY2F0ZSI7CgpleHBvcnQgaW50ZXJmYWNlIENvbnRyYWN0SWRWYWxpZGF0aW9uU3VjY2VzcyB7CiAgcmVhZG9ubHkgb2s6IHRydWU7CiAgcmVhZG9ubHkgdmFsdWU6IHN0cmluZzsKfQoKZXhwb3J0IGludGVyZmFjZSBDb250cmFjdElkVmFsaWRhdGlvbkZhaWx1cmUgewogIHJlYWRvbmx5IG9rOiBmYWxzZTsKICByZWFkb25seSByZWFzb246IENvbnRyYWN0SWRWYWxpZGF0aW9uUmVhc29uOwogIHJlYWRvbmx5IG1lc3NhZ2U6IHN0cmluZzsKfQoKZXhwb3J0IHR5cGUgQ29udHJhY3RJZFZhbGlkYXRpb25SZXN1bHQgPQogIHwgQ29udHJhY3RJZFZhbGlkYXRpb25TdWNjZXNzCiAgfCBDb250cmFjdElkVmFsaWRhdGlvbkZhaWx1cmU7CgpleHBvcnQgaW50ZXJmYWNlIFZhbGlkYXRlQ29udHJhY3RJZE9wdGlvbnMgewogIC8qKiBJZHMgYWxyZWFkeSBwcmVzZW50IGluIHRoZSBjdXJyZW50IGJhdGNoOyB1c2VkIHRvIGRldGVjdCBkdXBsaWNhdGVzLiAqLwogIHJlYWRvbmx5IGV4aXN0aW5nSWRzPzogUmVhZG9ubHlBcnJheTxzdHJpbmc+IHwgdW5kZWZpbmVkOwp9CgpmdW5jdGlvbiBmYWlsKAogIHJlYXNvbjogQ29udHJhY3RJZFZhbGlkYXRpb25SZWFzb24sCiAgbWVzc2FnZTogc3RyaW5nLAopOiBDb250cmFjdElkVmFsaWRhdGlvbkZhaWx1cmUgewogIHJldHVybiB7IG9rOiBmYWxzZSwgcmVhc29uLCBtZXNzYWdlIH07Cn0KCi8qKgogKiBWYWxpZGF0ZSBhIGNvbnRyYWN0IGlkZW50aWZpZXIgYWdhaW5zdCB0aGUgY2Fub25pY2FsIGJvdW5kYXJpZXMuCiAqCiAqIFRoZSBmdW5jdGlvbiBpcyB0b3RhbDogZXZlcnkgc3RyaW5nIGlucHV0IHByb2R1Y2VzIGEgZGV0ZXJtaW5pc3RpYyByZXN1bHQsCiAqIGFuZCBpdCBuZXZlciB0aHJvd3MuIE5vbi1zdHJpbmcgaW5wdXRzIGFyZSB0cmVhdGVkIGFzIGVtcHR5IGJlY2F1c2UgdGhlCiAqIHJvdXRlIHBhcmFtIGlzIGFsd2F5cyBhIHN0cmluZyBhdCB0aGUgYm91bmRhcnksIGJ1dCBkZWZlbnNpdmUgY2FsbGVycwogKiBtYXkgcGFzcyBgdW5kZWZpbmVkYCBvciBgbnVsbGAuCiAqLwpleHBvcnQgZnVuY3Rpb24gdmFsaWRhdGVDb250cmFjdElkKAogIHJhd0lkOiB1bmtub3duLAogIG9wdGlvbnM6IFZhbGlkYXRlQ29udHJhY3RJZE9wdGlvbnMgPSB7fSwKKTogQ29udHJhY3RJZFZhbGlkYXRpb25SZXN1bHQgewogIGlmICh0eXBlb2YgcmF3SWQgIT09ICJzdHJpbmciKSB7CiAgICByZXR1cm4gZmFpbCgiZW1wdHkiLCAiQ29udHJhY3QgaWQgbXVzdCBiZSBhIHN0cmluZy4iKTsKICB9CgogIGNvbnN0IGlkID0gcmF3SWQudHJpbSgpOwoKICBpZiAoaWQubGVuZ3RoIDwgQ09OVFJBQ1RfSURfTUlOX0xFTkdUSCkgewogICAgcmV0dXJuIGZhaWwoImVtcHR5IiwgIkNvbnRyYWN0IGlkIG11c3Qgbm90IGJlIGVtcHR5LiIpOwogIH0KCiAgaWYgKGlkLmxlbmd0aCA+IENPTlRSQUNUX0lEX01BWF9MRU5HVEgpIHsKICAgIHJldHVybiBmYWlsKAogICAgICAidG9vX2xvbmciLAogICAgICBgQ29udHJhY3QgaWQgbXVzdCBiZSBhdCBtb3N0ICR7Q09OVFJBQ1RfSURfTUFYX0xFTkdUSH0gY2hhcmFjdGVycy5gLAogICAgKTsKICB9CgogIGlmICghQ09OVFJBQ1RfSURfUEFUVEVSTi50ZXN0KGlkKSkgewogICAgcmV0dXJuIGZhaWwoCiAgICAgICJpbnZhbGlkX2NoYXJhY3RlcnMiLAogICAgICAiQ29udHJhY3QgaWQgbWF5IG9ubHkgY29udGFpbiBsb3dlcmNhc2UgbGV0dGVycywgZGlnaXRzLCBoeXBoZW5zLCBhbmQgdW5kZXJzY29yZXMuIiwKICAgICk7CiAgfQoKICBjb25zdCBleGlzdGluZ0lkcyA9IG9wdGlvbnMuZXhpc3RpbmdJZHMgPz8gW107CiAgaWYgKGV4aXN0aW5nSWRzLmluY2x1ZGVzKGlkKSkgewogICAgcmV0dXJuIGZhaWwoImR1cGxpY2F0ZSIsICJDb250cmFjdCBpZCBhbHJlYWR5IGV4aXN0cy4iKTsKICB9CgogIHJldHVybiB7IG9rOiB0cnVlLCB2YWx1ZTogaWQgfTsKfQoKLyoqCiAqIENvbnZlbmllbmNlIHByZWRpY2F0ZSBmb3IgY2FsbGVycyB0aGF0IG9ubHkgbmVlZCBhIGJvb2xlYW4uIFRoaXMgaXMKICogZXF1aXZhbGVudCB0byB2YWxpZGF0ZUNvbnRyYWN0SWQoaWQpLm9rIGFuZCBpcyBwcm92aWRlZCB0byBhdm9pZCBhZGhvYwogKiBkdXBsaWNhdGlvbiBvZiB0aGUgcnVsZXMgaW4gY29uc3VtZXJzLgogKi8KZXhwb3J0IGZ1bmN0aW9uIGlzVmFsaWRDb250cmFjdElkKGlkOiB1bmtub3duKTogYm9vbGVhbiB7CiAgcmV0dXJuIHZhbGlkYXRlQ29udHJhY3RJZChpZCkub2s7Cn0K
+/**
+ * Validation boundaries for contract route parameters and loading state.
+ *
+ * This module defines the canonical, deterministic validation rules used by
+ * `src/app/contracts/[id]/loading.tsx` and any other consumer that needs to
+ * decide whether a contract identifier is well-formed before fetching or
+ * rendering data.
+ *
+ * Invariants:
+ *   1. A contract id is either valid or invalid; there is no "partially
+ *      valid" state. Consumers must never proceed with an invalid id.
+ *   2. Validation is pure and deterministic: the same input always produces
+ *      the same result, with no I/O, timers, or global mutable state.
+ *   3. Validation never throws for any input; it returns a discriminated
+ *      result so callers can handle rejection without try/catch.
+ *   4. Duplicate ids are detected explicitly and reported as a distinct
+ *      reason so the caller can surface an appropriate message.
+ *   5. Boundary values (length limits, allowed characters) are enforced
+ *      inclusively and documented in the constants below.
+ */
+
+/** Minimum accepted length for a contract id. */
+export const CONTRACT_ID_MIN_LENGTH = 1;
+
+/** Maximum accepted length for a contract id. */
+export const CONTRACT_ID_MAX_LENGTH = 128;
+
+/**
+ * Compatibility alias for {@link CONTRACT_ID_MAX_LENGTH}.
+ *
+ * Two names for one bound existed after two validation designs were merged;
+ * both are exported so neither caller breaks. They must stay equal — the
+ * boundary tests assert against whichever name their call site uses.
+ */
+export const MAX_CONTRACT_ID_LENGTH = CONTRACT_ID_MAX_LENGTH;
+
+/**
+ * Allowed character set for contract ids. This is deliberately conservative:
+ * lowercase letters, digits, hyphens, and underscores. This prevents path
+ * traversal, encoding tricks, and accidental URI segment injection.
+ */
+export const CONTRACT_ID_PATTERN = /^[a-z0-9_-]+$/;
+
+/**
+ * Reasons a contract identifier can be rejected.
+ *
+ * The reason is machine-readable (`reason`) while `message` stays safe to
+ * render, so a caller can branch without parsing user-facing text.
+ */
+export type ContractIdValidationReason =
+  | "empty"
+  | "too_short"
+  | "too_long"
+  | "invalid_characters"
+  | "duplicate";
+
+export interface ContractIdValidationSuccess {
+  readonly ok: true;
+  readonly value: string;
+}
+
+/**
+ * Machine-readable error codes for a rejected contract id.
+ *
+ * Compatibility surface: callers that compare against a closed enum (rather
+ * than reading `reason`) use this. It is a one-to-one mapping of
+ * {@link ContractIdValidationReason}, so the two can never disagree.
+ */
+export const ContractIdValidationError = {
+  NOT_A_STRING: "NOT_A_STRING",
+  EMPTY: "EMPTY",
+  TOO_SHORT: "TOO_SHORT",
+  TOO_LONG: "TOO_LONG",
+  INVALID_CHARACTERS: "INVALID_CHARACTERS",
+  DUPLICATE: "DUPLICATE",
+} as const;
+
+export type ContractIdValidationErrorCode =
+  (typeof ContractIdValidationError)[keyof typeof ContractIdValidationError];
+
+export interface ContractIdValidationFailure {
+  readonly ok: false;
+  readonly reason: ContractIdValidationReason;
+  /** Same information as `reason`, in the enum form. */
+  readonly error: ContractIdValidationErrorCode;
+  readonly message: string;
+}
+
+export type ContractIdValidationResult =
+  | ContractIdValidationSuccess
+  | ContractIdValidationFailure;
+
+export interface ValidateContractIdOptions {
+  /** Ids already present in the current batch; used to detect duplicates. */
+  readonly existingIds?: ReadonlyArray<string> | undefined;
+}
+
+/**
+ * Maps a reason onto its enum code.
+ *
+ * Kept as one exhaustive `switch` so adding a reason without adding a code is a
+ * compile error rather than a silently `undefined` `error` at runtime.
+ */
+function toErrorCode(reason: ContractIdValidationReason): ContractIdValidationErrorCode {
+  switch (reason) {
+    case "empty":
+      return ContractIdValidationError.EMPTY;
+    case "too_short":
+      return ContractIdValidationError.TOO_SHORT;
+    case "too_long":
+      return ContractIdValidationError.TOO_LONG;
+    case "invalid_characters":
+      return ContractIdValidationError.INVALID_CHARACTERS;
+    case "duplicate":
+      return ContractIdValidationError.DUPLICATE;
+  }
+}
+
+function fail(
+  reason: ContractIdValidationReason,
+  message: string,
+): ContractIdValidationFailure {
+  return { ok: false, reason, error: toErrorCode(reason), message };
+}
+
+/**
+ * Normalizes a raw contract id for comparison without changing its case.
+ *
+ * Ids are case-sensitive, so only surrounding whitespace is removed. Returns an
+ * empty string for non-string input so callers can compare against `""` without
+ * a type check.
+ */
+export function normalizeContractId(rawId: unknown): string {
+  return typeof rawId === "string" ? rawId.trim() : "";
+}
+
+/**
+ * Validate a contract identifier against the canonical boundaries.
+ *
+ * The function is total: every string input produces a deterministic result,
+ * and it never throws. Non-string inputs are treated as empty because the
+ * route param is always a string at the boundary, but defensive callers
+ * may pass `undefined` or `null`.
+ */
+export function validateContractId(
+  rawId: unknown,
+  options: ValidateContractIdOptions = {},
+): ContractIdValidationResult {
+  if (typeof rawId !== "string") {
+    // Distinct from an empty id: the caller passed the wrong type entirely.
+    return {
+      ok: false,
+      reason: "empty",
+      error: ContractIdValidationError.NOT_A_STRING,
+      message: "Contract id must be a string.",
+    };
+  }
+
+  const id = rawId.trim();
+
+  if (id.length < CONTRACT_ID_MIN_LENGTH) {
+    return fail("empty", "Contract id must not be empty.");
+  }
+
+  if (id.length > CONTRACT_ID_MAX_LENGTH) {
+    return fail(
+      "too_long",
+      `Contract id must be at most ${CONTRACT_ID_MAX_LENGTH} characters.`,
+    );
+  }
+
+  if (!CONTRACT_ID_PATTERN.test(id)) {
+    return fail(
+      "invalid_characters",
+      "Contract id may only contain lowercase letters, digits, hyphens, and underscores.",
+    );
+  }
+
+  const existingIds = options.existingIds ?? [];
+  if (existingIds.includes(id)) {
+    return fail("duplicate", "Contract id already exists.");
+  }
+
+  return { ok: true, value: id };
+}
+
+/**
+ * Convenience predicate for callers that only need a boolean. This is
+ * equivalent to validateContractId(id).ok and is provided to avoid adhoc
+ * duplication of the rules in consumers.
+ */
+export function isValidContractId(id: unknown): boolean {
+  return validateContractId(id).ok;
+}

@@ -1,8 +1,4 @@
 import type { MetadataRoute } from 'next';
-import {
-  buildWebAppManifest,
-  reportWebAppManifestAnomalies,
-} from '@/lib/webAppManifest';
 
 /**
  * Web app manifest for TalentTrust.
@@ -64,8 +60,13 @@ const DEFAULT_START_URL = '/';
 /** Regular expression for a 6-digit hex color (e.g. `#ffffff`). */
 const HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
 
-/** Regurl for a `sizes` value such as `any` or `192x192`. */
-const SIZES_REGEX = /^(any|\d{1,4}x\{1,4})$/;
+/**
+ * Regular expression for a `sizes` value such as `any` or `192x192`.
+ *
+ * Invariant: only `any` or `<width>x<height>` with 1-4 digit components is
+ * accepted, so a malformed size can never reach the emitted manifest.
+ */
+const SIZES_REGEX = /^(any|\d{1,4}x\d{1,4})$/;
 
 /** Regular expression for a simple image MIME type. */
 const MIME_REGEX = /^image\/[a-z0-9.+-]+$/i;
@@ -99,7 +100,8 @@ export interface NormalizedManifest {
   short_name: string;
   description: string;
   start_url: string;
-  display: string;
+  /** Narrowed to Next's allowed values so the result is assignable to MetadataRoute.Manifest. */
+  display: NonNullable<MetadataRoute.Manifest['display']>;
   background_color: string;
   theme_color: string;
   icons: ManifestIcon[];
@@ -158,11 +160,14 @@ function normalizeStartUrl(value: unknown): string {
 }
 
 /** Normalizes the display mode to an allowed value. */
-function normalizeDisplay(value: unknown): string {
+type ManifestDisplay = NonNullable<MetadataRoute.Manifest['display']>;
+
+/** Returns a value Next accepts as `display`, or the default when unrecognised. */
+function normalizeDisplay(value: unknown): ManifestDisplay {
   if (isNonEmptyString(value) && ALLOWED_DISPLAY.has(value.trim())) {
-    return value.trim();
+    return value.trim() as ManifestDisplay;
   }
-  return DEFAULT_DISPLAY;
+  return DEFAULT_DISPLAY as ManifestDisplay;
 }
 
 /** Validates a single icon entry, returning `null` when invalid. */

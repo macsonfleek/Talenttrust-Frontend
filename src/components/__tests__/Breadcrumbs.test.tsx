@@ -40,7 +40,7 @@ const TWO_CRUMBS: BreadcrumbItem[] = [
   { label: 'Settings' },
 ];
 
-const ONE_CRUM: BreadcrumbItem[] = [{ label: 'Dashboard', href: '/' }];
+const ONE_CRUMB: BreadcrumbItem[] = [{ label: 'Dashboard', href: '/' }];
 
 // ----------------------------------------------------------------------------
 // Structure & ARIA
@@ -136,7 +136,7 @@ describe('Breadcrumbs — aria-current', () => {
   });
 
   it('applies aria-current="page" to a single-crumb list', () => {
-    render(<Breadcrumbs items={ONE_CRUM} />);
+    render(<Breadcrumbs items={ONE_CRUMB} />);
     expect(screen.getByText('Dashboard')).toHaveAttribute('aria-current', 'page');
   });
 });
@@ -367,7 +367,8 @@ describe('Breadcrumbs — boundary and adversarial inputs', () => {
 
     render(<Breadcrumbs items={items} />);
     expect(screen.getByRole('link', { name: 'Contracts' })).toBeInTheDocument();
-    expect(screen.getByText('Current')).toHaveAttribute('aria-current', 'page');
+    // The trailing crumb has no href, so it is the current page.
+    expect(screen.getByText('Contract #42')).toHaveAttribute('aria-current', 'page');
   });
 
   it('returns null when every entry is null or undefined', () => {
@@ -712,11 +713,16 @@ describe('Breadcrumbs — regression: separator count with filtered items', () =
   it('has exactly (n - 1) separators for n valid items after filtering nulls', () => {
     const items = [
       { label: 'A', href: '/a' },
+      null,
       { label: 'B', href: '/b' },
-      { label: 'C', href: '/c' },
-    ];
+      null,
+      { label: 'C' },
+    ] as unknown as BreadcrumbItem[];
 
     const { container } = render(<Breadcrumbs items={items} />);
+    // 3 valid items → 2 separators
+    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(2);
+  });
 
   it('has exactly (n - 1) separators for n items after whitespace filtering', () => {
     const { container } = render(

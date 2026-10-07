@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import StatusBadge, { StatusType } from '../StatusBadge';
+import StatusBadge, { isKnownStatus, type StatusType } from '../StatusBadge';
 
 const STATUS_ICONS: Record<StatusType, string> = {
   Active:    '▶',

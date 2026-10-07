@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef } from 'react';
-import StatusBadge from '@/components/StatusBadge';
 import type { WalletItem } from '@/types/domain';
 import { useToast } from '@/components/toast/toast-provider';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';

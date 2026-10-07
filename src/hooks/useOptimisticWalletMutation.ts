@@ -3,10 +3,9 @@
 import { useCallback, useRef, useState } from 'react';
 import {
   saveWalletItem,
-  updateWalletItem,
+  upsertWalletItem,
   deleteWalletItems,
   getWalletItemVersion,
-  upsertWalletItem,
 } from '@/lib/repository';
 import type { WalletItem } from '@/types/domain';
 
@@ -171,17 +170,12 @@ export function useOptimisticWalletMutation(
           itemsRef.current.map((item) => (item.id === id ? optimisticItem : item)),
         );
 
-        // Try upsertWalletItem if versioning is active, otherwise fallback to updateWalletItem
-        let ok = false;
-        let isStale = false;
-
-        if (typeof upsertWalletItem === 'function') {
-          const res = upsertWalletItem(optimisticItem);
-          ok = res.success;
-          isStale = res.stale;
-        } else {
-          ok = updateWalletItem(id, optimisticItem);
-        }
+        // Persist through the versioned upsert so the stale-overwrite guard
+        // applies; `updateWalletItem` has no version check and would silently
+        // win a race against another session.
+        const result = upsertWalletItem(optimisticItem);
+        const ok = result.success;
+        const isStale = result.stale;
 
         if (!ok) {
           if (rollbackRef.current) {

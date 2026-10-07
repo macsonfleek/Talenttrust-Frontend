@@ -41,7 +41,24 @@ export function useOptimisticContractStatus(
 
       const version = getContractVersion(contractData.name);
       const persisted = buildPersistedContract(contractData, nextStatus, version);
-      const result = upsertContract(persisted);
+
+      let result: ReturnType<typeof upsertContract>;
+      try {
+        result = upsertContract(persisted);
+      } catch {
+        // A repository write can throw (network reset, storage failure,
+        // constraint violation) instead of returning a failure result. Without
+        // this guard the exception escaped the caller's `try` and left the
+        // optimistic status committed with no rollback and no user-visible
+        // error, i.e. the UI claimed a save that never happened.
+        setContractData(lastPersistedRef.current ?? contractData);
+        return {
+          ok: false,
+          stale: false,
+          error:
+            'The contract status could not be persisted. Please try again.',
+        };
+      }
 
       if (!result.success) {
         // Roll back to the last known good state, or the original if none.

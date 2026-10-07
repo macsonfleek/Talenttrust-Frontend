@@ -8,7 +8,6 @@ import { WalletItemList } from '../../components/wallet/WalletItemList';
 import { listWalletItems, saveWalletItem, updateWalletItem, deleteWalletItems } from '@/lib/repository';
 import { reportError } from '@/lib/errorReporter';
 import { useToast } from '@/components/toast/toast-provider';
-import { reportError } from '@/lib/errorReporter';
 import type { WalletItem } from '@/types/domain';
 import { getSampleWalletItems } from './constants';
 
@@ -33,7 +32,7 @@ import { getSampleWalletItems } from './constants';
  *   toast counting.
  */
 
-function dedupeIds(ids: Readonly string[]): string[] {
+function dedupeIds(ids: readonly string[]): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const id of ids) {
@@ -60,6 +59,31 @@ export default function WalletPage() {
   // and leave duplicate or partially-persisted state.
   const seededRef = useRef(false);
 
+  /**
+   * Mirror of `items` for handlers that must observe the latest committed list
+   * synchronously.
+   *
+   * Invariant: updated inside `commitItems`, so a read performed in the same
+   * tick as a write (a burst of selection toggles, a double-click delete)
+   * always sees the value that write produced instead of the pre-render one.
+   */
+  const itemsRef = useRef<WalletItem[]>([]);
+
+  /**
+   * Synchronous in-flight mutex for every mutating wallet operation.
+   *
+   * Invariant: set immediately before a repository write and cleared in
+   * `finally`, so two rapid confirmations can never issue two deletes / two
+   * updates for a single user action, and a failed write still frees the lock
+   * so the user can retry.
+   */
+  const isMutatingRef = useRef(false);
+
+  const commitItems = useCallback((next: WalletItem[]) => {
+    itemsRef.current = next;
+    setItems(() => next);
+  }, []);
+
   // Load from repository on mount, seeding starter items only when empty.
   // The UI is driven strictly by what actually persisted, so a failed write
   // (e.g. localStorage quota) can never leave phantom items on screen or
@@ -68,77 +92,72 @@ export default function WalletPage() {
     if (seededRef.current) return;
     seededRef.current = true;
 
-    const loaded = listWalletItems();
-    if (loaded.length > 0) {
-      setItems(loaded);
-      return;
-    }
-
-    const seed = getSampleWalletItems();
-    if (seed.length === 0) {
-      setItems([]);
-      return;
-    }
-
-    const persisted: WalletItem[] = [];
-    let failedCount = 0;
-
-    for (const item of seed) {
-      const ok = saveWalletItem(item);
-      if (ok === false) {
-        failedCount += 1;
-      } else {
-        persisted.push(item);
-      }
-    }
-
-    setItems(persisted);
-
-    if (failedCount > 0) {
-      // Counts only — never log wallet addresses or identifiers.
-      reportError(
-        new Error(`Failed to persist ${failedCount} of ${seed.length} starter wallet items.`),
-        'WalletPage.seed',
-        'warn',
-        { failedCount, totalCount: seed.length },
-      );
-      showError({
-        title: 'Wallet data partially unavailable',
-        description: `Couldn't save ${failedCount} of ${seed.length} starter items. Your existing data is safe.`,
-      });
-    }
-  }, [showError]);
-
-  // ---------------------------------------------------------------------------
-  // Initial Mount & Seeding (Idempotent and Concurrency Safe)
-  // ---------------------------------------------------------------------------
-  useEffect(() => {
-    if (isMountedRef.current) return;
-    isMountedRef.current = true;
-
+    // The load runs exactly once per mount (guarded above) and always ends by
+    // clearing `isLoading`, so the route can never be left spinning — and never
+    // leaves `items` populated from a read that actually failed.
     try {
       const loaded = listWalletItems();
-      if (loaded && loaded.length > 0) {
-        // Deduplicate in case of corrupt legacy state
+
+      // Self-heal corrupt legacy state: the repository is the source of truth
+      // but may return repeated ids. Deduplicating here keeps the selection,
+      // bulk-delete and export invariants (all keyed by id) well-defined.
+      if (loaded.length > 0) {
         const seen = new Set<string>();
         const deduped: WalletItem[] = [];
         for (const item of loaded) {
-          if (!seen.has(item.id)) {
-            seen.add(item.id);
-            deduped.push(item);
-          }
+          if (seen.has(item.id)) continue;
+          seen.add(item.id);
+          deduped.push(item);
         }
         commitItems(deduped);
-      } else {
-        // Seed sample items into repository for initial demo
-        SAMPLE_WALLET_ITEMS.forEach((item) => saveWalletItem(item));
-        commitItems(SAMPLE_WALLET_ITEMS);
+        setIsLoading(false);
+        return;
+      }
+
+      const seed = getSampleWalletItems();
+      if (seed.length === 0) {
+        commitItems([]);
+        setIsLoading(false);
+        return;
+      }
+
+      const persisted: WalletItem[] = [];
+      let failedCount = 0;
+
+      for (const item of seed) {
+        const ok = saveWalletItem(item);
+        if (ok === false) {
+          failedCount += 1;
+        } else {
+          persisted.push(item);
+        }
+      }
+
+      commitItems(persisted);
+      setIsLoading(false);
+
+      if (failedCount > 0) {
+        // Counts only — never log wallet addresses or identifiers.
+        reportError(
+          new Error(`Failed to persist ${failedCount} of ${seed.length} starter wallet items.`),
+          'WalletPage.seed',
+          'warn',
+          { failedCount, totalCount: seed.length },
+        );
+        showError({
+          title: 'Wallet data partially unavailable',
+          description: `Couldn't save ${failedCount} of ${seed.length} starter items. Your existing data is safe.`,
+        });
       }
     } catch (err) {
+      // Reading or seeding threw: report it, surface a recoverable message, and
+      // leave the list empty rather than showing a partially-applied seed.
       reportError(err, '[WalletPage] Failed to initialize wallet items.');
-      commitItems(SAMPLE_WALLET_ITEMS);
+      commitItems([]);
+      setLoadError('Wallet items could not be loaded. Please try again.');
+      setIsLoading(false);
     }
-  }, [commitItems]);
+  }, [commitItems, showError]);
 
   // ---------------------------------------------------------------------------
   // State Invariant: Prune selectedIds whenever items changes
@@ -169,22 +188,6 @@ export default function WalletPage() {
   // ---------------------------------------------------------------------------
   // Selection Handlers
   // ---------------------------------------------------------------------------
-  const handleToggleSelect = useCallback((id: string) => {
-    if (isMutatingRef.current) return;
-    setSelectedIds((prev) => {
-      let changed = false;
-      const next = new Set<string>();
-      for (const id of prev) {
-        if (validIds.has(id)) {
-          next.add(id);
-        } else {
-          changed = true;
-        }
-      }
-      return changed ? next : prev;
-    });
-  }, [items]);
-
   // I3: Clear or reconcile editing id when items change.
   useEffect(() => {
     if (editingId === null) return;
@@ -242,7 +245,6 @@ export default function WalletPage() {
         a.href = url;
         a.download = `wallet-export-${Date.now()}.json`;
         a.click();
-        downloaded = true;
       } finally {
         URL.revokeObjectURL(url);
       }
@@ -285,7 +287,9 @@ export default function WalletPage() {
     isMutatingRef.current = true;
     setIsMutating(true);
 
-    const deleteIds = Array.from(new Set(targetDeleteIds));
+    // I4: the captured target set is deduplicated before it is applied, so a
+    // repeated id can never cause a double deletion or double toast counting.
+    const deleteIds = dedupeIds(targetDeleteIds);
 
     // Cancel inline editing if the active item is being deleted
     if (editingId && deleteIds.includes(editingId)) {

@@ -765,6 +765,47 @@ export function updateWalletItem(id: string, patch: Partial<WalletItem>): boolea
 }
 
 /**
+ * Inserts or updates a wallet item with stale-overwrite protection.
+ *
+ * Mirrors {@link upsertContract}: the incoming `version` is compared against
+ * the stored version and a write that would clobber a newer record is
+ * rejected instead of silently winning. The persisted version is then
+ * incremented so the caller can chain another update against the new baseline.
+ *
+ * This is the persistence path the optimistic wallet mutation relies on;
+ * without it every wallet write bypasses the concurrency guard and two tabs
+ * editing the same item silently overwrite each other.
+ *
+ * @param item - The `WalletItem` record to persist.
+ * @returns `success` with the record's new version on success, or
+ *   `success: false, stale: true` when the write was rejected as stale.
+ */
+export function upsertWalletItem(item: WalletItem): UpsertResult {
+  const store = readStore();
+  const index = store.walletItems.findIndex((existing) => existing.id === item.id);
+
+  if (index !== -1) {
+    const existingVersion = store.walletItems[index].version ?? 0;
+    const incomingVersion = item.version ?? 0;
+
+    if (incomingVersion < existingVersion) {
+      return { success: false, stale: true };
+    }
+  }
+
+  const nextVersion = (item.version ?? 0) + 1;
+  const updated: WalletItem = { ...item, version: nextVersion };
+
+  const walletItems =
+    index === -1
+      ? [...store.walletItems, updated]
+      : store.walletItems.map((existing, i) => (i === index ? updated : existing));
+
+  const ok = writeStore({ ...store, walletItems });
+  return ok ? { success: true, stale: false } : { success: false, stale: false };
+}
+
+/**
  * Deletes wallet items matching the given array of IDs.
  * Deduplicates target IDs to ensure idempotency.
  *

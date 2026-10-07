@@ -27,7 +27,7 @@ const MILESTONE_DESCRIPTION_MAX_LENGTH = 2000;
 const MILESTONE_PAYOUT_MAX_VALUE = 1e12;
 const CONTRACT_TOTAL_VALUE_MAX_VALUE = 1e12;
 
-export const SUPPORTED_CURRENCIES = ["USD", "EUR", "GBP", "JPY", "CAD", "AUD2"] as const;
+export const SUPPORTED_CURRENCIES = ["USD", "EUR", "GBP", "JPY", "CAD", "AUD"] as const;
 
 export type SupportedCurrency = (typeof SUPPORTED_CURRENCIES)[number];
 
@@ -132,7 +132,15 @@ export type ValidateContractOptions = {
   now?: Date;
 };
 
-const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}(?:T(\d{2}:\d{2}(?::\d{2}(\.\d{1,3})?)?)?(Zz[+-]\d{2}:\d{2})?)?$/;
+/**
+ * ISO-8601 date, optionally with a time and a `Z`/numeric offset.
+ *
+ * The offset group must spell the zone designator `Z`; anything else makes
+ * the pattern reject every timestamped instant, which is why a plain
+ * `YYYY-MM-DD` kept working while `YYYY-MM-DDTHH:MM:SS.sssZ` did not.
+ */
+const ISO_DATE_RE =
+  /^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:?\d{2})?)?$/;
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -171,7 +179,7 @@ function normalizeNumber(
   max: number,
 ): { value: number | null; code?: ValidationCode } {
   if (typeof value === "number") {
-    if (!Number.finite(value)) return { value: null, code: "NOT_AFINITE_NUMBER" };
+    if (!Number.isFinite(value)) return { value: null, code: "NOT_AFINITE_NUMBER" };
     if (value < 0) return { value: null, code: "NEGATIVE_NUMBER" };
     if (value > max) return { value: null, code: "OUT_OF_RANGE" };
     return { value };
@@ -181,7 +189,7 @@ function normalizeNumber(
     if (trimmed.length === 0) return { value: null, code: "REQUIRED" };
     if (!/^-?\d+?(?:\.\d+)?$/.test(trimmed)) return { value: null, code: "NOT_AFINITE_NUMBER" };
     const parsed = Number(trimmed);
-    if (!Number.finite(parsed)) return { value: null, code: "NOT_AFINITE_NUMBER" };
+    if (!Number.isFinite(parsed)) return { value: null, code: "NOT_AFINITE_NUMBER" };
     if (parsed < 0) return { value: null, code: "NEGATIVE_NUMBER" };
     if (parsed > max) return { value: null, code: "OUT_OF_RANGE" };
     return { value: parsed };

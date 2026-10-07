@@ -39,8 +39,6 @@ import React from 'react';
  * - Shimmer blocks are suppressed for `prefers-reduced-motion` by the
  *   project-wide rule in globals.css plus `motion-reduce:animate-none`.
  */
-const SKELETON_CARD_COUNT = 5;
-
 /** Minimum number of skeleton cards rendered. */
 export const MIN_SKELETON_COUNT = 1;
 
@@ -86,8 +84,6 @@ import ContractsLoadingBoundary, {
 import { ContractsSkeleton } from '@/components/contracts/ContractsSkeleton';
 
 export default function ContractsLoading() {
-  const id = React.useId();
-
   return (
     <ContractsLoadingBoundary>
       <ContractsSkeleton count={CONTRACTS_LOADING_SKELETON_ROWS} />

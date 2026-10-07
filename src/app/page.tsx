@@ -102,7 +102,7 @@ export default function Home() {
     return value.slice(0, maxLength);
   };
 
-  const handleEmailChange = (e changeEvent: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(clampInput(e.target.value, MAX_EMAIL_LENGTH));
   };
 

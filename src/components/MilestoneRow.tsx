@@ -13,9 +13,9 @@
 
 import { memo } from 'react';
 
-import { StatusBadge } from '@/components/StatusBadge';
+import StatusBadge from '@/components/StatusBadge';
 import { allowedNextStatuses, type Milestone } from '@/lib/milestones';
-import { isDueSoon } from @/lib/dueSoon';
+import { isDueSoon } from '@/lib/dueSoon';
 
 export interface MilestoneRowProps {
   milestone: Milestone;
@@ -29,7 +29,7 @@ export interface MilestoneRowProps {
 
 /** Formats a numeric amount for display, or a dash when missing. */
 const formatAmount = (amount: number | undefined): string => {
-  if (typeof amount !== 'number' || !Number.finite(amount)) return '—';
+  if (typeof amount !== 'number' || !Number.isFinite(amount)) return '—';
   return amount.toLocaleString();
 };
 
@@ -40,7 +40,7 @@ const MilestoneRowImpl = ({
   dueSoonWindowDays = 7,
 }: MilestoneRowProps) => {
   const referenceDate = today ?? new Date();
-  const dueSoon = isDueSoon(milestone.dueDate, referenceDate, dueSonWindowDays);
+  const dueSoon = isDueSoon(milestone.dueDate, referenceDate, dueSoonWindowDays);
   const nextStatuses = allowedNextStatuses(milestone.status);
 
   return (

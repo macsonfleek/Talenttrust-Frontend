@@ -1,1 +1,279 @@
-aW1wb3J0IHsgZGVzY3JpYmUsIGV4cGVjdCwgaXQgfSBmcm9tICJ2aXRlc3QiOwoKaW1wb3J0IHsKICBDT05UUkFDVF9OQU1FX01BWF9MRU5HVEgsCiAgU1VQUE9SVEVEX0NVUlJFTkNJRVMsCiAgaXNEdXBsaWNhdGVDb250cmFjdE5hbWUsCiAgbm9ybWFsaXplTmFtZUtleSwKICB2YWxpZGF0ZUNvbnRyYWN0LAp9IGZyb20gIi4vY29udHJhY3RzIjsKCmNvbnN0IEZJWEVEX05PVyA9IG5ldyBEYXRlKCIyMDI0LTA2LTAxVDAwOjAwOjAwLjAwMFoiKTsKCmZ1bmN0aW9uIGJhc2VJbnB1dChvdmVycmlkZXM6IFJlY29yZDxzdHJpbmcsIHVua25vd24+ID0ge30pIHsKICByZXR1cm4gewogICAgbmFtZTogIkFjbWUgU2VydmljZXMgQWdyZWVtZW50IiwKICAgIGRlc2NyaXB0aW9uOiAiU3RhbmRhcmQgb3V0c291cmNpbmcgYWdyZWVtZW50LiIsCiAgICB0b3RhbFZhbHVlOiAxMCBfMDAwLAogICAgY3VycmVuY3k6ICJVU0QiLAogICAgc3RhdHVzOiAiRHJhZnQiLAogICAgY3JlYXRlZEF0OiAiMjAyNC0wNS0wMVQwMDowMDowMC4wMDBaIiwKICAgIHBhcnRpZXM6IFsKICAgICAgeyBuYW1lOiAiQWNtZSBJbmMiLCByb2xlOiAiQ2xpZW50IiB9LAogICAgICB7IG5hbWU6ICJCb2IgU3BlY2lhbGlzdCIsIHJvbGU6ICJDb250cmFjdG9yIiB9LAogICAgXSwKICAgIG1pbGVzdG9uZXM6IFsKICAgICAgeyBpZDogIm0tMSIsIHRpdGxlOiAiS2lja29mZiIsIHBheW91dDogMiBfMDAwLCBjdXJyZW5jeTogIlVTRCIgfSwKICAgIF0sCiAgICAuLi5vdmVycmlkZXMsCiAgfTsKfQoKZGVzY3JpYmUoInZhbGlkYXRlQ29udHJhY3QiLCAoKSA9PiB7CiAgaXQoImFjY2VwdHMgYSB3ZWxsLWZvcm1lZCBjb250cmFjdCBhbmQgbm9ybWFsaXplcyB2YWx1ZXMiLCAoKSA9PiB7CiAgICBjb25zdCByZXN1bHQgPSB2YWxpZGF0ZUNvbnRyYWN0KGJhc2VJbnB1dCgpLCB7IG5vdzogRklYRURfTk9XIH0pOwogICAgZXhwZWN0KHJlc3VsdC5vaykudG9CZS h0cnVlKTsKICAgIGlmICghcmVzdWx0Lm9rKSByZXR1cm47CiAgICBleHBlY3QocmVzdWx0LnZhbHVlLm5hbWUpLnRvQmUoIkFjbWUgU2VydmljZXMgQWdyZWVtZW50Iik7CiAgICBleHBlY3QocmVzdWx0LnZhbHVlLmN1cnJlbmN5KS50b0JlKCJVU0QiKTsKICAgIGV4cGVjdChyZXN1bHQudmFsdWUudG90YWxWYWx1ZSkudG9CZSgxMF8wMDApOwogICAgZXhwZWN0KHJlc3VsdC52YWx1ZS5taWxlc3RvbmVzWzBdLmlkKS50b0JlKCJtLTEiKTsKICB9KTsKCiAgaXQoIm5vcm1hbGl6ZXMgY3VycmVuY3kgY2FzaW5nIGFuZCB3aGl0ZXNwYWNlIiwgKCkgPT4gewogICAgY29uc3QgcmVzdWx0ID0gdmFsaWRhdGVDb250cmFjdCgKICAgICAgYmFzZUlucHV0KHsgY3VycmVuY3k6ICIgdXNkICIsIG5hbWU6ICIgIEFjbWUgU2VydmljZXMgQWdyZWVtZW50ICAiIH0pLAogICAgICB7IG5vdzogRklYRURfTk9XIH0sCiAgICApOwogICAgZXhwZWN0KHJlc3VsdC5vaykudG9CZS h0cnVlKTsKICAgIGlmICghcmVzdWx0Lm9rKSByZXR1cm47CiAgICBleHBlY3QocmVzdWx0LnZhbHVlLmN1cnJlbmN5KS50b0JlKCJVU0QiKTsKICAgIGV4cGVjdChyZXN1bHQudmFsdWUubmFtZSkudG9CZSgiQWNtZSBTZXJ2aWNlcyBBZ3JlZW1lbnQiKTsKICB9KTsKCiAgaXQoInJlamVjdHMgYSBtaXNzaW5nIG5hbWUiLCAoKSA9PiB7CiAgICBjb25zdCByZXN1bHQgPSB2YWxpZGF0ZUNvbnRyYWN0KGJhc2VJbnB1dCh7IG5hbWU6ICIgICAiIH0pLCB7IG5vdzogRklYRURfTk9XIH0pOwogICAgZXhwZWN0KHJlc3VsdC5vaykudG9CZS hmYWxzZSk7CiAgICBpZiAocmVzdWx0Lm9rKSByZXR1cm47CiAgICBleHBlY3QocmVzdWx0Lmlzc3Vlcy5zb21lKChpKSA9PiBpLmNvZGUgPT09ICJSRVFVSVJFRCIgJiYgaS5wYXRoID09PSAibmFtZSIpKS50b0JlKHRydWUpOwogIH0pOwoKICBpdCgicmVqZWN0cyBhIG5hbWUgZXhhY3RseSBvbmUgY2hhcmFjdGVyIG92ZXIgdGhlIGxpbWl0IiwgKCkgPT4gewogICAgY29uc3QgbmFtZSA9ICJhIi5yZXBlYXQoQ09OVFJBQ1RfTkFNRV9NQVhfTEVOR1RIICsgMSk7CiAgICBjb25zdCByZXN1bHQgPSB2YWxpZGF0ZUNvbnRyYWN0KGJhc2VJbnB1dCh7IG5hbWUgfSksIHsgbm93OiBGSVhFRF9OT1cgfSk7CiAgICBleHBlY3QocmVzdWx0Lm9rKS50b0JlKGZhbHNlKTsKICAgIGlmIChyZXN1bHQub2spIHJldHVybjsKICAgIGV4cGVjdChyZXN1bHQuaXNzdWVzLnNvbWUoKGkpID0+IGkuY29kZSA9PT0gIlRPT19MT05HIikpLnRvQmUodHJ1ZSk7CiAgfSk7CgogIGl0KCJhY2NlcHRzIGEgbmFtZSBhdCB0aGUgZXhhY3QgbWF4aW11bSBsZW5ndGgiLCAoKSA9PiB7CiAgICBjb25zdCBuYW1lID0gImEiLnJlcGVhdChDT05UUkFDVF9OQU1FX01BWF9MRU5HVEgpOwogICAgY29uc3QgcmVzdWx0ID0gdmFsaWRhdGVDb250cmFjdChiYXNlSW5wdXQoeyBuYW1lIH0pLCB7IG5vdzogRklYRURfTk9XIH0pOwogICAgZXhwZWN0KHJlc3VsdC5vaykudG9CZS h0cnVlKTsKICB9KTsKCiAgaXQoInJlamVjdHMgZHVwbGljYXRlIG5hbWVzIGNhc2UtaW5zZW5zaXRpdmVseSIsICgpID0+IHsKICAgIGNvbnN0IHJlc3VsdCA9IHZhbGlkYXRlQ29udHJhY3QoYmFzZUlucHV0KCksIHsKICAgICAgbm93OiBGSVhFRF9OT1csCiAgICAgIGV4aXN0aW5nTmFtZXM6IFsiICBhY21lIHNlcnZpY2VzIGFncmVlbWVudCAiXSwKICAgIH0pOwogICAgZXhwZWN0KHJlc3VsdC5vaykudG9CZS hmYWxzZSk7CiAgICBpZiAocmVzdWx0Lm9rKSByZXR1cm47CiAgICBleHBlY3QocmVzdWx0Lmlzc3Vlcy5zb21lKChpKSA9PiBpLmNvZGUgPT09ICJEVVBMSUNBVEVfTkFNRSIpKS50b0JlKHRydWUpOwogIH0pOwoKICBpdCgicmVqZWN0cyBuZWdhdGl2ZSB0b3RhbCB2YWx1ZXMiLCAoKSA9PiB7CiAgICBjb25zdCByZXN1bHQgPSB2YWxpZGF0ZUNvbnRyYWN0KGJhc2VJbnB1dCh7IHRvdGFsVmFsdWU6IC0xIH0pLCB7IG5vdzogRklYRURfTk9XIH0pOwogICAgZXhwZWN0KHJlc3VsdC5vaykudG9CZS hmYWxzZSk7CiAgICBpZiAocmVzdWx0Lm9rKSByZXR1cm47CiAgICBleHBlY3QocmVzdWx0Lmlzc3Vlcy5zb21lKChpKSA9PiBpLmNvZGUgPT09ICJORUdBVElWRV9OVU1CRVIiKSkudG9CZS h0cnVlKTsKICB9KTsKCiAgaXQoInJlamVjdHMgbm9uLWZpbml0ZSB0b3RhbCB2YWx1ZXMiLCAoKSA9PiB7CiAgICBjb25zdCByZXN1bHQgPSB2YWxpZGF0ZUNvbnRyYWN0KGJhc2VJbnB1dCh7IHRvdGFsVmFsdWU6IE51bWJlci5QT1NJVElWRV9JTkZJTklUWSB9KSwgewogICAgICBub3c6IEZJWEVEX05PVywKICAgIH0pOwogICAgZXhwZWN0KHJlc3VsdC5vaykudG9CZS hmYWxzZSk7CiAgICBpZiAocmVzdWx0Lm9rKSByZXR1cm47CiAgICBleHBlY3QocmVzdWx0Lmlzc3Vlcy5zb21lKChpKSA9PiBpLmNvZGUgPT09ICJOT1RfQUZJTklURV9OVU1CRVIiKSkudG9CZS h0cnVlKTsKICB9KTsKCiAgaXQoInJlamVjdHMgdW5zdXBwb3J0ZWQgY3VycmVuY2llcyIsICgpID0+IHsKICAgIGNvbnN0IHJlc3VsdCA9IHZhbGlkYXRlQ29udHJhY3QoYmFzZUlucHV0KHsgY3VycmVuY3k6ICJYWVoiIH0pLCB7IG5vdzogRklYRURfTk9XIH0pOwogICAgZXhwZWN0KHJlc3VsdC5vaykudG9CZS hmYWxzZSk7CiAgICBpZiAocmVzdWx0Lm9rKSByZXR1cm47CiAgICBleHBlY3QocmVzdWx0Lmlzc3Vlcy5zb21lKChpKSA9PiBpLmNvZGUgPT09ICJVTlNVUFBPUlRFRF9DVVJSRU5DWSIpKS50b0JlKHRydWUpOwogIH0pOwoKICBpdCgicmVqZWN0cyBpbnZhbGlkIHN0YXR1c2VzIiwgKCkgPT4gewogICAgY29uc3QgcmVzdWx0ID0gdmFsaWRhdGVDb250cmFjdChiYXNlSW5wdXQoeyBzdGF0dXM6ICJQZW5kaW5nIiB9KSwgeyBub3c6IEZJWEVEX05PVyB9KTsKICAgIGV4cGVjdChyZXN1bHQub2spLnRvQmUoZmFsc2UpOwogICAgaWYgKHJlc3VsdC5vaykgcmV0dXJuOwogICAgZXhwZWN0KHJlc3VsdC5pc3N1ZXMuc29tZSgoaSkgPT4gaS5jb2RlID09PSAiSU5WQUxJRF9TVEFUVVMiKSkudG9CZS h0cnVlKTsKICB9KTsKCiAgaXQoInJlamVjdHMgZnV0dXJlIGNyZWF0aW9uIGRhdGVzIiwgKCkgPT4gewogICAgY29uc3QgcmVzdWx0ID0gdmFsaWRhdGVDb250cmFjdChiYXNlSW5wdXQoeyBjcmVhdGVkQXQ6ICIyMDI1LTAxLTAxVDAwOjAwOjAwLjAwMFoiIH0pLCB7CiAgICAgIG5vdzogRklYRURfTk9XLAogICAgfSk7CiAgICBleHBlY3QocmVzdWx0Lm9rKS50b0JlKGZhbHNlKTsKICAgIGlmIChyZXN1bHQub2spIHJldHVybjsKICAgIGV4cGVjdChyZXN1bHQuaXNzdWVzLnNvbWUoKGkpID0+IGkuY29kZSA9PT0gIkRBVEVfSU5fRlVUVVJFIikpLnRvQmUodHJ1ZSk7CiAgfSk7CgogIGl0KCJyZWplY3RzIGR1cGxpY2F0ZSBwYXJ0eSBuYW1lcyIsICgpID0+IHsKICAgIGNvbnN0IHJlc3VsdCA9IHZhbGlkYXRlQ29udHJhY3QoCiAgICAgIGJhc2VJbnB1dCh7CiAgICAgICAgcGFydGllczogWwogICAgICAgICAgeyBuYW1lOiAiQWNtZSBJbmMiIH0sCiAgICAgICAgICB7IG5hbWU6ICJhY21lIGluYyIgfSwKICAgICAgICBdLAogICAgICB9KSwKICAgICAgeyBub3c6IEZJWEVEX05PVyB9LAogICAgKTsKICAgIGV4cGVjdChyZXN1bHQub2spLnRvQmUoZmFsc2UpOwogICAgaWYgKHJlc3VsdC5vaykgcmV0dXJuOwogICAgZXhwZWN0KHJlc3VsdC5pc3N1ZXMuc29tZSgoaSkgPT4gaS5jb2RlID09PSAiRFVQTElDQVRFX1BBUlRJQ0lQQU5UIikpLnRvQmUodHJ1ZSk7CiAgfSk7CgogIGl0KCJyZWplY3RzIGR1cGxpY2F0ZSBtaWxlc3RvbmUgaWRzIiwgKCkgPT4gewogICAgY29uc3QgcmVzdWx0ID0gdmFsaWRhdGVDb250cmFjdCgKICAgICAgYmFzZUlucHV0KHsKICAgICAgICBtaWxlc3RvbmVzOiBbCiAgICAgICAgICB7IGlkOiAibS0xIiwgdGl0bGU6ICJLaWNrb2ZmIiwgcGF5b3V0OiAxIF8wMDAgfSwKICAgICAgICAgIHsgaWQ6ICJtLTEiLCB0aXRsZTogIkRlbGl2ZXJ5IiwgcGF5b3V0OiAxIF8wMDAgfSwKICAgICAgICBdLAogICAgICB9KSwKICAgICAgeyBub3c6IEZJWEVEX05PVyB9LAogICAgKTsKICAgIGV4cGVjdChyZXN1bHQub2spLnRvQmUoZmFsc2UpOwogICAgaWYgKHJlc3VsdC5vaykgcmV0dXJuOwogICAgZXhwZWN0KHJlc3VsdC5pc3N1ZXMuc29tZSgoaSkgPT4gaS5jb2RlID09PSAiRFVQTElDQVRFX01JTEVTVE9ORV9JRCIpKS50b0JlKHRydWUpOwogIH0pOwoKICBpdCgicmVqZWN0cyBtaWxlc3RvbmUgcGF5b3V0cyBleGNlZWRpbmcgdG90YWwgdmFsdWUiLCAoKSA9PiB7CiAgICBjb25zdCByZXN1bHQgPSB2YWxpZGF0ZUNvbnRyYWN0KAogICAgICBiYXNlSW5wdXQoewogICAgICAgIHRvdGFsVmFsdWU6IDEgXzAwMCwKICAgICAgICBtaWxlc3RvbmVzOiBbCiAgICAgICAgICB7IGlkOiAibS0xIiwgdGl0bGU6ICJLaWNrb2ZmIiwgcGF5b3V0OiA2MDAgfSwKICAgICAgICAgIHsgaWQ6ICJtLTIiLCB0aXRsZTogIkRlbGl2ZXJ5IiwgcGF5b3V0OiA2MDAgfSwKICAgICAgICBdLAogICAgICB9KSwKICAgICAgeyBub3c6IEZJWEVEX05PVyB9LAogICAgKTsKICAgIGV4cGVjdChyZXN1bHQub2spLnRvQmUoZmFsc2UpOwogICAgaWYgKHJlc3VsdC5vaykgcmV0dXJuOwogICAgZXhwZWN0KHJlc3VsdC5pc3N1ZXMuc29tZSgoaSkgPT4gaS5jb2RlID09PSAiU1VNX0VYQ0VFREVTX1RPVEFMIikpLnRvQmUodHJ1ZSk7CiAgfSk7CgogIGl0KCJhY2NlcHRzIG1pbGVzdG9uZSBwYXlvdXRzIGV4YWN0bHkgZXF1YWwgdG8gdG90YWwgdmFsdWUiLCAoKSA9PiB7CiAgICBjb25zdCByZXN1bHQgPSB2YWxpZGF0ZUNvbnRyYWN0KAogICAgICBiYXNlSW5wdXQoewogICAgICAgIHRvdGFsVmFsdWU6IDEgXzAwMCwKICAgICAgICBtaWxlc3RvbmVzOiBbCiAgICAgICAgICB7IGlkOiAibS0xIiwgdGl0bGU6ICJLaWNrb2ZmIiwgcGF5b3V0OiA1MDAgfSwKICAgICAgICAgIHsgaWQ6ICJtLTIiLCB0aXRsZTogIkRlbGl2ZXJ5IiwgcGF5b3V0OiA1MDAgfSwKICAgICAgICBdLAogICAgICB9KSwKICAgICAgeyBub3c6IEZJWEVEX05PVyB9LAogICAgKTsKICAgIGV4cGVjdChyZXN1bHQub2spLnRvQmUodHJ1ZSk7CiAgfSk7CgogIGl0KCJyZWplY3RzIG5vbi1vYmplY3QgaW5wdXQiLCAoKSA9PiB7CiAgICBjb25zdCByZXN1bHQgPSB2YWxpZGF0ZUNvbnRyYWN0KG51bGwsIHsgbm93OiBGSVhFRF9OT1cgfSk7CiAgICBleHBlY3QocmVzdWx0Lm9rKS50b0JlKGZhbHNlKTsKICAgIGlmIChyZXN1bHQub2spIHJldHVybjsKICAgIGV4cGVjdChyZXN1bHQuaXNzdWVzWzBdLmNvZGUpLnRvQmUoIklOVkFMSURfVFlQRSIpOwogIH0pOwoKICBpdCgicmVqZWN0cyB0b28gbWFueSBwYXJ0aWVzIiwgKCkgPT4gewogICAgY29uc3QgcGFydGllcyA9IEFycmF5LmZyb20oeyBsZW5ndGg6IDIxIH0sICggXywgaSkgPT4gKHsgbmFtZTogYFBhcnR5ICR7aX1gIH0pKTsKICAgIGNvbnN0IHJlc3VsdCA9IHZhbGlkYXRlQ29udHJhY3QoYmFzZUlucHV0KHsgcGFydGllcyB9KSwgeyBub3c6IEZJWEVEX05PVyB9KTsKICAgIGV4cGVjdChyZXN1bHQub2spLnRvQmUoZmFsc2UpOwogICAgaWYgKHJlc3VsdC5vaykgcmV0dXJuOwogICAgZXhwZWN0KHJlc3VsdC5pc3N1ZXMuc29tZSgoaSkgPT4gaS5jb2RlID09PSAiVE9PX01BTllfSVRFTVMiKSkudG9CZS h0cnVlKTsKICB9KTsKCiAgaXQoInJlamVjdHMgdG9vIG1hbnkgbWlsZXN0b25lcyIsICgpID0+IHsKICAgIGNvbnN0IG1pbGVzdG9uZXMgPSBBcnJheS5mcm9tKHsgbGVuZ3RoOiA1MDEgfSwgKF8sIGkpID0+ICh7CiAgICAgIGlkOiBgbS0ke2l9YCwKICAgICAgdGl0bGU6IGBNaWxlc3RvbmUgJHtpfWAsCiAgICAgIHBheW91dDogMSwKICAgIH0pKTsKICAgIGNvbnN0IHJlc3VsdCA9IHZhbGlkYXRlQ29udHJhY3QoCiAgICAgIGJhc2VJbnB1dCh7IHRvdGFsVmFsdWU6IDEwXzAwMCwgbWlsZXN0b25lcyB9KSwKICAgICAgeyBub3c6IEZJWEVEX05PVyB9LAogICAgKTsKICAgIGV4cGVjdChyZXN1bHQub2spLnRvQmUoZmFsc2UpOwogICAgaWYgKHJlc3VsdC5vaykgcmV0dXJuOwogICAgZXhwZWN0KHJlc3VsdC5pc3N1ZXMuc29tZSgoaSkgPT4gaS5jb2RlID09PSAiVE9PX01BTllfSVRFTVMiKSkudG9CZS h0cnVlKTsKICB9KTsKCiAgaXQoImFjY2VwdHMgdG90YWwgdmFsdWUgb2YgemVybyIsICgpID0+IHsKICAgIGNvbnN0IHJlc3VsdCA9IHZhbGlkYXRlQ29udHJhY3QoCiAgICAgIGJhc2VJbnB1dCh7IHRvdGFsVmFsdWU6IDAsIG1pbGVzdG9uZXM6IFtdIH0pLAogICAgICB7IG5vdzogRklYRURfTk9XIH0sCiAgICApOwogICAgZXhwZWN0KHJlc3VsdC5vaykudG9CZS h0cnVlKTsKICB9KTsKCiAgaXQoImFjY2VwdHMgdG90YWwgdmFsdWUgYXQgdGhlIG1heGltdW0gYm91bmQiLCAoKSA9PiB7CiAgICBjb25zdCByZXN1bHQgPSB2YWxpZGF0ZUNvbnRyYWN0KAogICAgICBiYXNlSW5wdXQoeyB0b3RhbFZhbHVlOiAxZTEyLCBtaWxlc3RvbmVzOiBbXSB9KSwKICAgICAgeyBub3c6IEZJWEVEX05PVyB9LAogICAgKTsKICAgIGV4cGVjdChyZXN1bHQub2spLnRvQmUodHJ1ZSk7CiAgfSk7CgogIGl0KCJyZWplY3RzIHRvdGFsIHZhbHVlIGFib3ZlIHRoZSBtYXhpbXVtIGJvdW5kIiwgKCkgPT4gewogICAgY29uc3QgcmVzdWx0ID0gdmFsaWRhdGVDb250cmFjdCgKICAgICAgYmFzZUlucHV0KHsgdG90YWxWYWx1ZTogMWUxMiArIDEsIG1pbGVzdG9uZXM6IFtdIH0pLAogICAgICB7IG5vdzogRklYRURfTk9XIH0sCiAgICApOwogICAgZXhwZWN0KHJlc3VsdC5vaykudG9CZS hmYWxzZSk7CiAgICBpZiAocmVzdWx0Lm9rKSByZXR1cm47CiAgICBleHBlY3QocmVzdWx0Lmlzc3Vlcy5zb21lKChpKSA9PiBpLmNvZGUgPT09ICJPVVRfT0ZfUkFOR0UiKSkudG9CZS h0cnVlKTsKICB9KTsKCiAgaXQoInJlamVjdHMgZGVmYXVsdHMgdG8gRHJhZnQgd2hlbiBzdGF0dXMgaXMgbWlzc2luZyIsICgpID0+IHsKICAgIGNvbnN0IHJlc3VsdCA9IHZhbGlkYXRlQ29udHJhY3QoCiAgICAgIGJhc2VJbnB1dCh7IHN0YXR1czogdW5kZWZpbmVkIH0pLAogICAgICB7IG5vdzogRklYRURfTk9XIH0sCiAgICApOwogICAgZXhwZWN0KHJlc3VsdC5vaykudG9CZS h0cnVlKTsKICAgIGlmICghcmVzdWx0Lm9rKSByZXR1cm47CiAgICBleHBlY3QocmVzdWx0LnZhbHVlLnN0YXR1cykudG9CZSgiRHJhZnQiKTsKICB9KTsKCiAgaXQoInJlamVjdHMgdW5rbm93biBleHRyYSBmaWVsZHMgd2l0aG91dCBjcmFzaGluZyIsICgpID0+IHsKICAgIGNvbnN0IHJlc3VsdCA9IHZhbGlkYXRlQ29udHJhY3QoCiAgICAgIHsgLi4uYmFzZUlucHV0KCksIGV4dHJhOiAidW5rbm93biIgfSwKICAgICAgeyBub3c6IEZJWEVEX05PVyB9LAogICAgKTsKICAgIGV4cGVjdChyZXN1bHQub2spLnRvQmUodHJ1ZSk7CiAgfSk7CgogIGl0KCJpcyBkZXRlcm1pbmlzdGljIGZvciB0aGUgc2FtZSBpbnB1dCIsICgpID0+IHsKICAgIGNvbnN0IGEgPSB2YWxpZGF0ZUNvbnRyYWN0KGJhc2VJbnB1dCgpLCB7IG5vdzogRklYRURfTk9XIH0pOwogICAgY29uc3QgYiA9IHZhbGlkYXRlQ29udHJhY3QoYmFzZUlucHV0KCksIHsgbm93OiBGSVhFRF9OT1cgfSk7CiAgICBleHBlY3QoYSkudG9FcXVhbChiKTsKICB9KTsKCiAgaXQoImV4cG9zZXMgc3VwcG9ydGVkIGN1cnJlbmNpZXMgZm9yIFVJIGRyb3Bkb3ducyIsICgpID0+IHsKICAgIGV4cGVjdChTVVBQT1JURURfQ1VSUkVOQ0lFUy5sZW5ndGgpLnRvQmVHcmVhdGVyVGhhbigwKTsKICB9KTsKfSk7CgpkZXNjcmliZSgiaXNEdXBsaWNhdGVDb250cmFjdE5hbWUiLCAoKSA9PiB7CiAgaXQoImRldGVjdHMgZHVwbGljYXRlcyBpZ25vcmluZyBjYXNpbmcgYW5kIHdoaXRlc3BhY2UiLCAoKSA9PiB7CiAgICBleHBlY3QoaXNEdXBsaWNhdGVDb250cmFjdE5hbWUoIiBBY21lICIsIFsiYWNtZSJdKSkudG9CZS h0cnVlKTsKICB9KTsKCiAgaXQoInJldHVybnMgZmFsc2UgZm9yIGFuIGVtcHR5IG5hbWUiLCAoKSA9PiB7CiAgICBleHBlY3QoaXNEdXBsaWNhdGVDb250cmFjdE5hbWUoIiAgICIsIFsiYWNtZSJdKSkudG9CZS hmYWxzZSk7CiAgfSk7CgogIGl0KCJub3JtYWxpemVzIG5hbWUga2V5cyBjb25zaXN0ZW50bHkiLCAoKSA9PiB7CiAgICBleHBlY3Qobm9ybWFsaXplTmFtZUtleSgiICBBY21lICAgSW5jICIpKS50b0JlKCJhY21lIGluYyIpOwogIH0pOwp9KTsK
+import {
+  CONTRACT_NAME_MAX_LENGTH,
+  SUPPORTED_CURRENCIES,
+  isDuplicateContractName,
+  normalizeNameKey,
+  validateContract,
+} from "./contracts";
+
+const FIXED_NOW = new Date("2024-06-01T00:00:00.000Z");
+
+function baseInput(overrides: Record<string, unknown> = {}) {
+  return {
+    name: "Acme Services Agreement",
+    description: "Standard outsourcing agreement.",
+    totalValue: 10_000,
+    currency: "USD",
+    status: "Draft",
+    createdAt: "2024-05-01T00:00:00.000Z",
+    parties: [
+      { name: "Acme Inc", role: "Client" },
+      { name: "Bob Specialist", role: "Contractor" },
+    ],
+    milestones: [
+      { id: "m-1", title: "Kickoff", payout: 2_000, currency: "USD" },
+    ],
+    ...overrides,
+  };
+}
+
+describe("validateContract", () => {
+  it("accepts a well-formed contract and normalizes values", () => {
+    const result = validateContract(baseInput(), { now: FIXED_NOW });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.name).toBe("Acme Services Agreement");
+    expect(result.value.currency).toBe("USD");
+    expect(result.value.totalValue).toBe(10_000);
+    expect(result.value.milestones[0].id).toBe("m-1");
+  });
+
+  it("normalizes currency casing and whitespace", () => {
+    const result = validateContract(
+      baseInput({ currency: " usd ", name: "  Acme Services Agreement  " }),
+      { now: FIXED_NOW },
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.currency).toBe("USD");
+    expect(result.value.name).toBe("Acme Services Agreement");
+  });
+
+  it("rejects a missing name", () => {
+    const result = validateContract(baseInput({ name: "   " }), { now: FIXED_NOW });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "REQUIRED" && i.path === "name")).toBe(true);
+  });
+
+  it("rejects a name exactly one character over the limit", () => {
+    const name = "a".repeat(CONTRACT_NAME_MAX_LENGTH + 1);
+    const result = validateContract(baseInput({ name }), { now: FIXED_NOW });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "TOO_LONG")).toBe(true);
+  });
+
+  it("accepts a name at the exact maximum length", () => {
+    const name = "a".repeat(CONTRACT_NAME_MAX_LENGTH);
+    const result = validateContract(baseInput({ name }), { now: FIXED_NOW });
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects duplicate names case-insensitively", () => {
+    const result = validateContract(baseInput(), {
+      now: FIXED_NOW,
+      existingNames: ["  acme services agreement "],
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "DUPLICATE_NAME")).toBe(true);
+  });
+
+  it("rejects negative total values", () => {
+    const result = validateContract(baseInput({ totalValue: -1 }), { now: FIXED_NOW });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "NEGATIVE_NUMBER")).toBe(true);
+  });
+
+  it("rejects non-finite total values", () => {
+    const result = validateContract(baseInput({ totalValue: Number.POSITIVE_INFINITY }), {
+      now: FIXED_NOW,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "NOT_AFINITE_NUMBER")).toBe(true);
+  });
+
+  it("rejects unsupported currencies", () => {
+    const result = validateContract(baseInput({ currency: "XYZ" }), { now: FIXED_NOW });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "UNSUPPORTED_CURRENCY")).toBe(true);
+  });
+
+  it("rejects invalid statuses", () => {
+    const result = validateContract(baseInput({ status: "Pending" }), { now: FIXED_NOW });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "INVALID_STATUS")).toBe(true);
+  });
+
+  it("rejects future creation dates", () => {
+    const result = validateContract(baseInput({ createdAt: "2025-01-01T00:00:00.000Z" }), {
+      now: FIXED_NOW,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "DATE_IN_FUTURE")).toBe(true);
+  });
+
+  it("rejects duplicate party names", () => {
+    const result = validateContract(
+      baseInput({
+        parties: [
+          { name: "Acme Inc" },
+          { name: "acme inc" },
+        ],
+      }),
+      { now: FIXED_NOW },
+    );
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "DUPLICATE_PARTICIPANT")).toBe(true);
+  });
+
+  it("rejects duplicate milestone ids", () => {
+    const result = validateContract(
+      baseInput({
+        milestones: [
+          { id: "m-1", title: "Kickoff", payout: 1_000 },
+          { id: "m-1", title: "Delivery", payout: 1_000 },
+        ],
+      }),
+      { now: FIXED_NOW },
+    );
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "DUPLICATE_MILESTONE_ID")).toBe(true);
+  });
+
+  it("rejects milestone payouts exceeding total value", () => {
+    const result = validateContract(
+      baseInput({
+        totalValue: 1_000,
+        milestones: [
+          { id: "m-1", title: "Kickoff", payout: 600 },
+          { id: "m-2", title: "Delivery", payout: 600 },
+        ],
+      }),
+      { now: FIXED_NOW },
+    );
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "SUM_EXCEEDES_TOTAL")).toBe(true);
+  });
+
+  it("accepts milestone payouts exactly equal to total value", () => {
+    const result = validateContract(
+      baseInput({
+        totalValue: 1_000,
+        milestones: [
+          { id: "m-1", title: "Kickoff", payout: 500 },
+          { id: "m-2", title: "Delivery", payout: 500 },
+        ],
+      }),
+      { now: FIXED_NOW },
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects non-object input", () => {
+    const result = validateContract(null, { now: FIXED_NOW });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues[0].code).toBe("INVALID_TYPE");
+  });
+
+  it("rejects too many parties", () => {
+    const parties = Array.from({ length: 21 }, ( _, i) => ({ name: `Party ${i}` }));
+    const result = validateContract(baseInput({ parties }), { now: FIXED_NOW });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "TOO_MANY_ITEMS")).toBe(true);
+  });
+
+  it("rejects too many milestones", () => {
+    const milestones = Array.from({ length: 501 }, (_, i) => ({
+      id: `m-${i}`,
+      title: `Milestone ${i}`,
+      payout: 1,
+    }));
+    const result = validateContract(
+      baseInput({ totalValue: 10_000, milestones }),
+      { now: FIXED_NOW },
+    );
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "TOO_MANY_ITEMS")).toBe(true);
+  });
+
+  it("accepts total value of zero", () => {
+    const result = validateContract(
+      baseInput({ totalValue: 0, milestones: [] }),
+      { now: FIXED_NOW },
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  it("accepts total value at the maximum bound", () => {
+    const result = validateContract(
+      baseInput({ totalValue: 1e12, milestones: [] }),
+      { now: FIXED_NOW },
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects total value above the maximum bound", () => {
+    const result = validateContract(
+      baseInput({ totalValue: 1e12 + 1, milestones: [] }),
+      { now: FIXED_NOW },
+    );
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.some((i) => i.code === "OUT_OF_RANGE")).toBe(true);
+  });
+
+  it("rejects defaults to Draft when status is missing", () => {
+    const result = validateContract(
+      baseInput({ status: undefined }),
+      { now: FIXED_NOW },
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.status).toBe("Draft");
+  });
+
+  it("rejects unknown extra fields without crashing", () => {
+    const result = validateContract(
+      { ...baseInput(), extra: "unknown" },
+      { now: FIXED_NOW },
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  it("is deterministic for the same input", () => {
+    const a = validateContract(baseInput(), { now: FIXED_NOW });
+    const b = validateContract(baseInput(), { now: FIXED_NOW });
+    expect(a).toEqual(b);
+  });
+
+  it("exposes supported currencies for UI dropdowns", () => {
+    expect(SUPPORTED_CURRENCIES.length).toBeGreaterThan(0);
+  });
+});
+
+describe("isDuplicateContractName", () => {
+  it("detects duplicates ignoring casing and whitespace", () => {
+    expect(isDuplicateContractName(" Acme ", ["acme"])).toBe(true);
+  });
+
+  it("returns false for an empty name", () => {
+    expect(isDuplicateContractName("   ", ["acme"])).toBe(false);
+  });
+
+  it("normalizes name keys consistently", () => {
+    expect(normalizeNameKey("  Acme   Inc ")).toBe("acme inc");
+  });
+});

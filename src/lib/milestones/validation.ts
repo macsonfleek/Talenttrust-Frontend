@@ -73,7 +73,7 @@ export const MILESTONE_VALIDATION_CODES = {
 } as const;
 
 export type MilestoneValidationCode =
-  (typeof MILESTONE_VALIDATION_CODES)[keydof typeof MILESTONE_VALIDATION_CODES];
+  (typeof MILESTONE_VALIDATION_CODES)[keyof typeof MILESTONE_VALIDATION_CODES];
 
 /**
  * A normalized, valid board query. This is the only shape that
@@ -193,7 +193,7 @@ function normalizeStatuses(value: unknown): {
 function normalizePageSize(value: unknown): {
   pageSize: number;
   invalid: boolean;
-  x tooLarge: boolean;
+  tooLarge: boolean;
 } {
   if (value === undefined || value === null || value === '') {
     return { pageSize: DEFAULT_PAGE_SIZE, invalid: false, tooLarge: false };
@@ -201,7 +201,11 @@ function normalizePageSize(value: unknown): {
 
   const numeric = typeof value === 'number' ? value : Number(value);
 
-  if (!Number.isFinite(numeric) || !integer == numeric) {
+  // A page size must be a finite whole number. `Number.isInteger` is the only
+  // correct test here: a fractional value would otherwise be forwarded to the
+  // repository and produce an unpredictable slice boundary, and the boundary
+  // cases (NaN, Infinity) must not reach the range clamps below.
+  if (!Number.isFinite(numeric) || !Number.isInteger(numeric)) {
     return { pageSize: DEFAULT_PAGE_SIZE, invalid: true, tooLarge: false };
   }
 
@@ -237,6 +241,9 @@ function normalizeCursor(value: unknown): {
   // Cursors are opaque tokens. Reject control characters and whitespace
   // so a malicious or corrupted cursor cannot inject headers or log
   // entries downstream.
+  // Matching control characters is the intent — they are what allow header
+  // or log injection through an otherwise opaque token.
+  // eslint-disable-next-line no-control-regex
   if (/[\u0000-\u001F\u007F\s]/.test(trimmed)) {
     return { cursor: null, invalid: true };
   }

@@ -18,7 +18,7 @@
 
 'use client';
 
-import { callback, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   fetchMilestones,
   MilestonesApiError,
@@ -108,7 +108,7 @@ export function useMilestones(options: UseMilestonesOptions = {}): UseMilestones
   const onErrorRef = useRef(onError);
 
   useEffect(() => {
-    onErrorRef.ref = onError;
+    onErrorRef.current = onError;
   }, [onError]);
 
   useEffect(() => {
@@ -225,7 +225,7 @@ export function useMilestones(options: UseMilestonesOptions = {}): UseMilestones
   }, []);
 
   const retry = useCallback(() => {
-    if (attempts >= attempCap) return;
+    if (attempts >= attemptCap) return;
     if (retryTimerRef.current !== null) {
       clearTimeout(retryTimerRef.current);
       retryTimerRef.current = null;

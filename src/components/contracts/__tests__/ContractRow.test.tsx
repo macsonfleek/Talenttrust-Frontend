@@ -79,6 +79,12 @@ describe('ContractRow', () => {
       configurable: true,
     });
 
+    // Force the fallback to fail as well: with both copy paths unavailable the
+    // hook must report a failure. The global execCommand stub succeeds, so
+    // without this the success path would be taken and this assertion would
+    // never be reached.
+    jest.spyOn(document, 'execCommand').mockReturnValue(false);
+
     render(<ContractRow contract={mockContract} />);
     const copyButton = screen.getByRole('button', { name: `Copy contract ID ${mockContract.id}` });
     
@@ -99,7 +105,12 @@ describe('ContractRow', () => {
 
     render(<ContractRow contract={mockContract} />);
     const copyButton = screen.getByRole('button', { name: `Copy contract ID ${mockContract.id}` });
-    
+        // Force the fallback to fail as well: with both copy paths unavailable the
+    // hook must report a failure. The global execCommand stub succeeds, so
+    // without this the success path would be taken and this assertion would
+    // never be reached.
+    jest.spyOn(document, 'execCommand').mockReturnValue(false);
+
     fireEvent.click(copyButton);
     
     await waitFor(() => {
